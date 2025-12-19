@@ -1,0 +1,41 @@
+---
+- name: Ensure registry directories exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop: "{{ registries | map('extract', {'path': registry_data_path + '/' + item.name}) | list + [letsencrypt_cache] }}"
+  loop_control:
+    loop_var: item
+
+- name: Generate config files for each registry
+  template:
+    src: registry-config.yml.j2
+    dest: "{{ registry_data_path }}/{{ registry.name }}/config.yml"
+  loop: "{{ registries }}"
+  loop_control:
+    loop_var: registry
+
+- name: Pull Docker Registry 3 image
+  docker_image:
+    name: registry
+    tag: "3"
+    source: pull
+
+- name: Deploy registries
+  docker_container:
+    name: "{{ registry.name }}"
+    image: registry:3
+    restart_policy: always
+    ports:
+      - "{{ registry.port }}:5000"
+    volumes:
+      - "{{ registry_data_path }}/{{ registry.name }}:/var/lib/registry"
+      - "{{ registry_data_path }}/{{ registry.name }}/config.yml:/etc/docker/registry/config.yml:ro"
+      - "{{ letsencrypt_cache }}:/acme"
+  loop: "{{ registries }}"
+  loop_control:
+    loop_var: registry
+...

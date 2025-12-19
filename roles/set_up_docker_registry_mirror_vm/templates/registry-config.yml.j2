@@ -1,0 +1,29 @@
+---
+version: 0.1
+log:
+  level: info
+
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+
+proxy:
+  remoteurl: {{ registry.upstream }}
+  ttl: {{ registry.ttl | default('0') }}
+
+http:
+  addr: :5000
+  tls:
+    certificate:
+      acme:
+        email: {{ letsencrypt_email }}
+        cachefile: /acme/{{ registry.name }}.json
+        hosts:
+          - {{ registry.fqdn }}
+  metrics:
+    prometheus:
+      enabled: true
+      path: /metrics
+  headers:
+    X-Content-Type-Options: [ nosniff ]
+...
