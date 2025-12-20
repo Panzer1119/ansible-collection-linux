@@ -29,3 +29,10 @@ releases:
     fragments:
       - 0.2.0.yml
     release_date: '2025-12-20'
+  0.2.1:
+    changes:
+      bugfixes:
+        - set_up_docker_registry_mirror_vm - Fix setting of Docker container labels.
+    fragments:
+      - 0.2.1.yml
+    release_date: '2025-12-20'

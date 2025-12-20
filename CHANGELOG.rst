@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.2.1
+======
+
+Bugfixes
+--------
+
+- set_up_docker_registry_mirror_vm - Fix setting of Docker container labels.
+
 v0.2.0
 ======
 
