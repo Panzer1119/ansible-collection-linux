@@ -1,14 +1,22 @@
 ---
-- name: Ensure registry directories exist
+- name: Ensure registry data directories exist
   file:
-    path: "{{ item.path }}"
+    path: "{{ registry_data_path }}/{{ registry.name }}"
     state: directory
     owner: root
     group: root
     mode: '0755'
-  loop: "{{ registries | map('extract', {'path': registry_data_path + '/' + item.name}) | list + [letsencrypt_cache] }}"
+  loop: "{{ registries }}"
   loop_control:
-    loop_var: item
+    loop_var: registry
+
+- name: Ensure ACME cache directory exists
+  file:
+    path: "{{ letsencrypt_cache }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Generate config files for each registry
   template:
@@ -18,13 +26,13 @@
   loop_control:
     loop_var: registry
 
-- name: Pull Docker Registry 3 image
+- name: Pull Docker Registry image
   docker_image:
     name: registry
     tag: "3"
     source: pull
 
-- name: Deploy registries
+- name: Deploy registry containers
   docker_container:
     name: "{{ registry.name }}"
     image: registry:3
