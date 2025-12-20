@@ -19,3 +19,13 @@ releases:
     fragments:
       - 0.1.1.yml
     release_date: '2025-12-20'
+  0.2.0:
+    changes:
+      major_changes:
+        - set_up_docker_registry_mirror_vm - Remove orphaned containers.
+      minor_changes:
+        - set_up_docker_registry_mirror_vm - Add variable to disable usage of Let's
+          Encrypt.
+    fragments:
+      - 0.2.0.yml
+    release_date: '2025-12-20'

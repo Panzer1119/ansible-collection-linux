@@ -1,5 +1,18 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-2-0"></a>
+## v0\.2\.0
+
+<a id="major-changes"></a>
+### Major Changes
+
+* set\_up\_docker\_registry\_mirror\_vm \- Remove orphaned containers\.
+
+<a id="minor-changes"></a>
+### Minor Changes
+
+* set\_up\_docker\_registry\_mirror\_vm \- Add variable to disable usage of Let\'s Encrypt\.
+
 <a id="v0-1-1"></a>
 ## v0\.1\.1
 

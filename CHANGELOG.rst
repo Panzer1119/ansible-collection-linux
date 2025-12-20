@@ -4,6 +4,19 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.2.0
+======
+
+Major Changes
+-------------
+
+- set_up_docker_registry_mirror_vm - Remove orphaned containers.
+
+Minor Changes
+-------------
+
+- set_up_docker_registry_mirror_vm - Add variable to disable usage of Let's Encrypt.
+
 v0.1.1
 ======
 
