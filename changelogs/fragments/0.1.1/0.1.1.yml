@@ -1,3 +1,4 @@
 ---
 bugfixes:
   - set_up_docker_registry_mirror_vm - Fixed an issue creating the data directory.
+...
