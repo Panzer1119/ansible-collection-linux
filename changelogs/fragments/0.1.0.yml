@@ -1,0 +1,5 @@
+---
+release_summary: Create the role set_up_docker_registry_mirror_vm.
+add object.role:
+  - name: set_up_docker_registry_mirror_vm
+    description: Sets up a Docker registry mirror VM on Proxmox VE.
