@@ -1,7 +1,7 @@
 ---
 - name: Ensure registry data directories exist
   file:
-    path: "{{ registry_data_path }}/{{ registry.name }}"
+    path: "{{ registry_data_base_path }}/{{ registry.name }}"
     state: directory
     owner: root
     group: root
@@ -10,18 +10,21 @@
   loop_control:
     loop_var: registry
 
-- name: Ensure ACME cache directory exists
+- name: Ensure ACME cache directories exist
   file:
-    path: "{{ letsencrypt_cache }}"
+    path: "{{ letsencrypt_cache_base_path }}/{{ registry.name }}"
     state: directory
     owner: root
     group: root
     mode: '0755'
+  loop: "{{ registries }}"
+  loop_control:
+    loop_var: registry
 
 - name: Generate config files for each registry
   template:
     src: registry-config.yml.j2
-    dest: "{{ registry_data_path }}/{{ registry.name }}/config.yml"
+    dest: "{{ registry_data_base_path }}/{{ registry.name }}/config.yml"
   loop: "{{ registries }}"
   loop_control:
     loop_var: registry
@@ -35,6 +38,7 @@
 - name: Deploy registry containers
   docker_container:
     name: "{{ registry.name }}"
+    hostname: "{{ registry.name }}"
     image: registry:3
     restart_policy: always
     env:
@@ -42,9 +46,9 @@
     ports:
       - "{{ registry.port }}:5000"
     volumes:
-      - "{{ registry_data_path }}/{{ registry.name }}:/var/lib/registry"
-      - "{{ registry_data_path }}/{{ registry.name }}/config.yml:/etc/docker/registry/config.yml:ro"
-      - "{{ letsencrypt_cache }}:/acme"
+      - "{{ registry_data_base_path }}/{{ registry.name }}:/var/lib/registry"
+      - "{{ registry_data_base_path }}/{{ registry.name }}/config.yml:/etc/docker/registry/config.yml:ro"
+      - "{{ letsencrypt_cache_base_path }}/{{ registry.name }}:/acme"
   loop: "{{ registries }}"
   loop_control:
     loop_var: registry
