@@ -1,6 +1,7 @@
 ---
+registry_data_path: "/opt/registry"
+use_letsencrypt: false
 letsencrypt_email: "admin@example.com"
 letsencrypt_cache: "/opt/registry/acme"
-registry_data_path: "/opt/registry"
 registries: []
 ...

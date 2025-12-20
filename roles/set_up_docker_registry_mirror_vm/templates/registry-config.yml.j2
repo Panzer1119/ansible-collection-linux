@@ -13,6 +13,7 @@ proxy:
 
 http:
   addr: :5000
+  {% if use_letsencrypt and registry.fqdn != "" %}
   tls:
     certificate:
       acme:
@@ -20,6 +21,7 @@ http:
         cachefile: /acme/{{ registry.name }}.json
         hosts:
           - {{ registry.fqdn }}
+  {% endif %}
   metrics:
     prometheus:
       enabled: true
