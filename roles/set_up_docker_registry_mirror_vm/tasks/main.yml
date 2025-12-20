@@ -29,6 +29,24 @@
   loop_control:
     loop_var: registry
 
+- name: List all containers with the label for this role
+  docker_host_info:
+    containers: yes
+    containers_filters:
+      label: "de.panzer1119.ansible.role=set_up_docker_registry_mirror_vm"
+  register: existing_registry_containers
+
+- set_fact:
+    desired_registry_names: "{{ registries | map(attribute='name') | list }}"
+
+- name: Remove orphaned registry containers
+  docker_container:
+    name: "{{ item.Names[0] | regex_replace('^/', '') }}"
+    state: absent
+    force_kill: yes
+  loop: "{{ existing_registry_containers.containers }}"
+  when: (item.Names[0] | regex_replace('^/', '')) not in desired_registry_names
+
 - name: Pull Docker Registry image
   docker_image:
     name: registry
