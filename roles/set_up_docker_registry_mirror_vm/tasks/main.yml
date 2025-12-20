@@ -49,6 +49,8 @@
       - "{{ registry_data_base_path }}/{{ registry.name }}:/var/lib/registry"
       - "{{ registry_data_base_path }}/{{ registry.name }}/config.yml:/etc/docker/registry/config.yml:ro"
       - "{{ letsencrypt_cache_base_path }}/{{ registry.name }}:/acme"
+    labels:
+      - "de.panzer1119.ansible.role=set_up_docker_registry_mirror_vm"
   loop: "{{ registries }}"
   loop_control:
     loop_var: registry
