@@ -12,3 +12,10 @@ releases:
           name: set_up_docker_registry_mirror_vm
           namespace: null
     release_date: '2025-12-20'
+  0.1.1:
+    changes:
+      bugfixes:
+        - set_up_docker_registry_mirror_vm - Fixed an issue creating the data directory.
+    fragments:
+      - 0.1.1.yml
+    release_date: '2025-12-20'

@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.1.1
+======
+
+Bugfixes
+--------
+
+- set_up_docker_registry_mirror_vm - Fixed an issue creating the data directory.
+
 v0.1.0
 ======
 
