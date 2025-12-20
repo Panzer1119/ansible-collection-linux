@@ -37,6 +37,8 @@
     name: "{{ registry.name }}"
     image: registry:3
     restart_policy: always
+    env:
+      OTEL_TRACES_EXPORTER: "none"
     ports:
       - "{{ registry.port }}:5000"
     volumes:
