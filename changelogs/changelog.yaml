@@ -1,0 +1,14 @@
+---
+ancestor: null
+releases:
+  0.1.0:
+    changes:
+      release_summary: Create the role set_up_docker_registry_mirror_vm.
+    fragments:
+      - 0.1.0.yml
+    objects:
+      role:
+        - description: Sets up a Docker registry mirror VM on Proxmox VE.
+          name: set_up_docker_registry_mirror_vm
+          namespace: null
+    release_date: '2025-12-20'
