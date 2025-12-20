@@ -1,0 +1,6 @@
+---
+minor_changes:
+  - set_up_docker_registry_mirror_vm - Add variable to disable usage of Let's Encrypt.
+major_changes:
+  - set_up_docker_registry_mirror_vm - Remove orphaned containers.
+...
