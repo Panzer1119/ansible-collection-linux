@@ -1,0 +1,20 @@
+---
+# Array of ZFS pool names to unlock
+zfs_yubikey_pools: []
+
+# YubiKey slot number (1 or 2)
+zfs_yubikey_slot: 2
+
+# Directory to store challenge files
+zfs_yubikey_challenge_dir: /etc/zfs/yubikey
+
+# Optional additional units to run before
+zfs_yubikey_systemd_before_extra: ""
+
+# Optional Pushover credentials
+zfs_yubikey_pushover_user: ""
+zfs_yubikey_pushover_token: ""
+
+# Whether to notify on successful pool unlock (default: true)
+zfs_yubikey_notify_success: true
+...

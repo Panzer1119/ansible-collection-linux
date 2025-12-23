@@ -1,0 +1,34 @@
+---
+- name: Install YubiKey tooling
+  apt:
+    name:
+      - yubikey-manager
+      - yubikey-personalization
+    state: present
+    update_cache: true
+
+- name: Ensure challenge files exist
+  import_tasks: challenges.yml
+
+- name: Install ZFS YubiKey unlock script
+  template:
+    src: zfs-yubikey-unlock.sh.j2
+    dest: /usr/local/sbin/zfs-yubikey-unlock.sh
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Install systemd unit
+  template:
+    src: zfs-yubikey-unlock.service.j2
+    dest: /etc/systemd/system/zfs-yubikey-unlock.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd
+
+- name: Enable unlock service
+  systemd:
+    name: zfs-yubikey-unlock.service
+    enabled: true
+...

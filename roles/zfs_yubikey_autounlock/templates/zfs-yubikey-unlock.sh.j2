@@ -1,0 +1,88 @@
+#!/bin/bash
+
+set -u
+IFS=$'\n\t'
+
+LOGGER_TAG="zfs-yubikey-unlock"
+YKCHALRESP=/usr/bin/ykchalresp
+YKMAN=/usr/bin/ykman
+SLOT={{ zfs_yubikey_slot }}
+CHALLENGE_DIR="{{ zfs_yubikey_challenge_dir }}"
+
+PUSHOVER_USER="{{ zfs_yubikey_pushover_user }}"
+PUSHOVER_TOKEN="{{ zfs_yubikey_pushover_token }}"
+
+log() {
+    logger -t "$LOGGER_TAG" "$1"
+}
+
+notify() {
+    [ -z "$PUSHOVER_USER" ] && return
+    [ -z "$PUSHOVER_TOKEN" ] && return
+
+    curl -s \
+      --form-string "token=$PUSHOVER_TOKEN" \
+      --form-string "user=$PUSHOVER_USER" \
+      --form-string "priority=$1" \
+      --form-string "message=$2" \
+      https://api.pushover.net/1/messages.json >/dev/null 2>&1
+}
+
+# ------------------------------------------------------------
+# Check for YubiKey once
+# ------------------------------------------------------------
+
+if $YKMAN info >/dev/null 2>&1; then
+    YUBIKEY_PRESENT=1
+    log "YubiKey detected."
+else
+    YUBIKEY_PRESENT=0
+    log "ERROR: No YubiKey detected."
+    notify 1 "ERROR: No YubiKey detected on Proxmox host. ZFS pools remain locked."
+fi
+
+unlock_pool() {
+    POOL="$1"
+    CHALLENGE_FILE="$CHALLENGE_DIR/$POOL.challenge"
+
+    KEYSTATUS=$(zfs get -H -o value keystatus "$POOL" 2>/dev/null || echo "unknown")
+    [ "$KEYSTATUS" = "available" ] && {
+        log "Pool '$POOL' already unlocked."
+        {% if zfs_yubikey_notify_success %}
+        notify 0 "SUCCESS: Pool '$POOL' is already unlocked."
+        {% endif %}
+        return
+    }
+
+    [ "$YUBIKEY_PRESENT" -eq 0 ] && {
+        log "ERROR: Cannot unlock '$POOL' (YubiKey missing)."
+        notify 1 "ERROR: Pool '$POOL' could not be unlocked (YubiKey missing)."
+        return
+    }
+
+    [ ! -r "$CHALLENGE_FILE" ] && {
+        log "ERROR: Missing challenge file for pool '$POOL'."
+        notify 1 "ERROR: Pool '$POOL' missing challenge file."
+        return
+    }
+
+    CHALLENGE_HEX=$(base64 -d "$CHALLENGE_FILE" | xxd -p -c 256)
+    PASSPHRASE=$($YKCHALRESP -$SLOT "$CHALLENGE_HEX" 2>/dev/null)
+
+    if printf '%s' "$PASSPHRASE" | zfs load-key -r "$POOL" >/dev/null 2>&1; then
+        log "Pool '$POOL' unlocked successfully."
+        {% if zfs_yubikey_notify_success %}
+        # Notify via Pushover with priority 0
+        notify 0 "SUCCESS: Pool '$POOL' unlocked successfully."
+        {% endif %}
+    else
+        log "ERROR: Failed to unlock pool '$POOL'."
+        notify 1 "ERROR: Failed to unlock ZFS pool '$POOL'."
+    fi
+}
+
+{% for pool in zfs_yubikey_pools %}
+unlock_pool {{ pool }}
+{% endfor %}
+
+log "ZFS YubiKey unlock attempt completed."

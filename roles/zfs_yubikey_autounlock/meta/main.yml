@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Paul Hagedorn <panzer1119@gmail.com>
+  description: "Ansible role to set up automatic ZFS pool unlocking using a pre-programmed YubiKey."
+  license: Apache-2.0
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - zfs
+    - yubikey
+    - encryption
+    - automation
+...

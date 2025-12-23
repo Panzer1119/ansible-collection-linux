@@ -1,0 +1,14 @@
+[Unit]
+Description=Unlock ZFS pools using YubiKey
+DefaultDependencies=no
+After=local-fs.target
+Before=zfs-mount.service{% if zfs_yubikey_systemd_before_extra != "" %} {{ zfs_yubikey_systemd_before_extra }}{% endif %}
+Wants=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/zfs-yubikey-unlock.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
