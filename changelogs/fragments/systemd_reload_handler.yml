@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - "zfs_yubikey_autounlock role: add a systemd daemon-reload handler to ensure newly installed/updated unit files are picked up by systemd."
+
