@@ -1,9 +1,18 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-3-1"></a>
+## v0\.3\.1
+
+<a id="minor-changes"></a>
+### Minor Changes
+
+* zfs\_yubikey\_autounlock role\: move Pushover notification settings to a dedicated top\-level dict \(<code>zfs\_yubikey\_autounlock\_pushover</code>\)\.
+* zfs\_yubikey\_autounlock role\: refactor configuration variables to a single config dict \(<code>zfs\_yubikey\_autounlock</code>\) with <code>pools</code> as a list of pool name strings\, and remove legacy variable support\.
+
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="minor-changes"></a>
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add role to automatically unlock encrypted ZFS pools at boot using a pre\-programmed YubiKey \(HMAC\-SHA1 challenge\-response\)\, with optional Pushover notifications\.
@@ -24,7 +33,7 @@
 
 * set\_up\_docker\_registry\_mirror\_vm \- Remove orphaned containers\.
 
-<a id="minor-changes-1"></a>
+<a id="minor-changes-2"></a>
 ### Minor Changes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Add variable to disable usage of Let\'s Encrypt\.

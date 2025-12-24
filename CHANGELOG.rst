@@ -4,6 +4,15 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.3.1
+======
+
+Minor Changes
+-------------
+
+- zfs_yubikey_autounlock role: move Pushover notification settings to a dedicated top-level dict (``zfs_yubikey_autounlock_pushover``).
+- zfs_yubikey_autounlock role: refactor configuration variables to a single config dict (``zfs_yubikey_autounlock``) with ``pools`` as a list of pool name strings, and remove legacy variable support.
+
 v0.3.0
 ======
 
