@@ -19,32 +19,5 @@ zfs_yubikey_autounlock:
   notify_success: true
 
 # Pools to unlock.
-# Preferred format: list of dicts: [{name: tank}, {name: backup}]
-# (Allows future per-pool overrides.)
+# Format: list of dicts: [{name: tank}, {name: backup}]
 zfs_yubikey_autounlock_pools: []
-
-# ---------------------------------------------------------------------------
-# Backward-compatible legacy variables (deprecated)
-# ---------------------------------------------------------------------------
-# Array of ZFS pool names to unlock
-zfs_yubikey_pools: []
-
-# YubiKey slot number (1 or 2)
-zfs_yubikey_slot: 2
-
-# Directory to store challenge files
-zfs_yubikey_challenge_dir: /etc/zfs/yubikey
-
-# Optional additional units to run before (space-separated)
-zfs_yubikey_systemd_before_extra: ""
-
-# Optional Pushover credentials
-zfs_yubikey_pushover_user: ""
-zfs_yubikey_pushover_token: ""
-
-# Optional Pushover notification title
-zfs_yubikey_pushover_title: "ZFS YubiKey Auto-Unlock"
-
-# Whether to notify on successful pool unlock (default: true)
-zfs_yubikey_notify_success: true
-...

@@ -1,36 +1,14 @@
 ---
-- name: Compute effective role configuration (new vars + legacy fallback)
+- name: Compute effective role configuration
   ansible.builtin.set_fact:
-    zfs_yubikey_effective_slot: >-
-      {{ zfs_yubikey_autounlock.slot
-         | default(zfs_yubikey_slot)
-         | int }}
-    zfs_yubikey_effective_challenge_dir: >-
-      {{ zfs_yubikey_autounlock.challenge_dir
-         | default(zfs_yubikey_challenge_dir) }}
-    zfs_yubikey_effective_notify_success: >-
-      {{ zfs_yubikey_autounlock.notify_success
-         | default(zfs_yubikey_notify_success)
-         | bool }}
-    zfs_yubikey_effective_pushover_user: >-
-      {{ zfs_yubikey_autounlock.pushover.user
-         | default(zfs_yubikey_pushover_user) }}
-    zfs_yubikey_effective_pushover_token: >-
-      {{ zfs_yubikey_autounlock.pushover.token
-         | default(zfs_yubikey_pushover_token) }}
-    zfs_yubikey_effective_pushover_title: >-
-      {{ zfs_yubikey_autounlock.pushover.title
-         | default(zfs_yubikey_pushover_title) }}
-    zfs_yubikey_effective_systemd_before_extra: >-
-      {{ zfs_yubikey_autounlock.systemd_before_extra
-         | default(zfs_yubikey_systemd_before_extra) }}
-    zfs_yubikey_effective_pools: >-
-      {{ (zfs_yubikey_autounlock_pools | default([]))
-         if (zfs_yubikey_autounlock_pools | default([]) | length > 0)
-         else (zfs_yubikey_pools | default([])
-               | map('regex_replace', '^(.*)$', '{"name": "\\1"}')
-               | map('from_json')
-               | list) }}
+    zfs_yubikey_effective_slot: "{{ zfs_yubikey_autounlock.slot | int }}"
+    zfs_yubikey_effective_challenge_dir: "{{ zfs_yubikey_autounlock.challenge_dir }}"
+    zfs_yubikey_effective_notify_success: "{{ zfs_yubikey_autounlock.notify_success | bool }}"
+    zfs_yubikey_effective_pushover_user: "{{ zfs_yubikey_autounlock.pushover.user }}"
+    zfs_yubikey_effective_pushover_token: "{{ zfs_yubikey_autounlock.pushover.token }}"
+    zfs_yubikey_effective_pushover_title: "{{ zfs_yubikey_autounlock.pushover.title }}"
+    zfs_yubikey_effective_systemd_before_extra: "{{ zfs_yubikey_autounlock.systemd_before_extra }}"
+    zfs_yubikey_effective_pools: "{{ zfs_yubikey_autounlock_pools }}"
 
 - name: Validate configuration
   ansible.builtin.assert:
@@ -42,7 +20,7 @@
       Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
 
 - name: Install YubiKey tooling
-  apt:
+  ansible.builtin.apt:
     name:
       - openssl
       - yubikey-manager
@@ -51,10 +29,10 @@
     update_cache: true
 
 - name: Ensure challenge files exist
-  import_tasks: challenges.yml
+  ansible.builtin.import_tasks: challenges.yml
 
 - name: Install ZFS YubiKey unlock script
-  template:
+  ansible.builtin.template:
     src: zfs-yubikey-unlock.sh.j2
     dest: /usr/local/sbin/zfs-yubikey-unlock.sh
     owner: root
@@ -62,7 +40,7 @@
     mode: "0700"
 
 - name: Install systemd unit
-  template:
+  ansible.builtin.template:
     src: zfs-yubikey-unlock.service.j2
     dest: /etc/systemd/system/zfs-yubikey-unlock.service
     owner: root
@@ -71,7 +49,7 @@
   notify: reload systemd
 
 - name: Enable unlock service
-  systemd:
+  ansible.builtin.systemd:
     name: zfs-yubikey-unlock.service
     enabled: true
 ...
