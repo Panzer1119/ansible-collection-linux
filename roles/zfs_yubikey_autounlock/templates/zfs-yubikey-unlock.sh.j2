@@ -118,7 +118,7 @@ unlock_pool() {
 failures=0
 
 {% for pool in zfs_yubikey_autounlock.pools %}
-if ! unlock_pool {{ pool.name | quote }}; then
+if ! unlock_pool {{ pool | quote }}; then
     failures=$((failures + 1))
 fi
 {% endfor %}

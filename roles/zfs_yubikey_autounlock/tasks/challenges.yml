@@ -9,7 +9,7 @@
 
 - name: Check existing challenge files
   ansible.builtin.stat:
-    path: "{{ zfs_yubikey_autounlock.challenge_dir }}/{{ item.name }}.challenge"
+    path: "{{ zfs_yubikey_autounlock.challenge_dir }}/{{ item }}.challenge"
   loop: "{{ zfs_yubikey_autounlock.pools }}"
   register: zfs_yubikey_challenge_stats
 
@@ -21,12 +21,12 @@
   no_log: true
   loop: "{{ zfs_yubikey_challenge_stats.results }}"
   loop_control:
-    label: "{{ item.item.name }}"
+    label: "{{ item.item }}"
   when: not item.stat.exists
 
 - name: Write generated challenge files
   ansible.builtin.copy:
-    dest: "{{ zfs_yubikey_autounlock.challenge_dir }}/{{ item.item.item.name }}.challenge"
+    dest: "{{ zfs_yubikey_autounlock.challenge_dir }}/{{ item.item.item }}.challenge"
     content: "{{ item.stdout }}\n"
     owner: root
     group: root
@@ -35,6 +35,6 @@
   no_log: true
   loop: "{{ zfs_yubikey_challenge_generated.results | default([]) }}"
   loop_control:
-    label: "{{ item.item.item.name }}"
+    label: "{{ item.item.item }}"
   when: item is not skipped
 ...

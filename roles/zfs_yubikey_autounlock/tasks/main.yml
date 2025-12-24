@@ -4,7 +4,8 @@
     that:
       - zfs_yubikey_autounlock.slot in [1, 2]
       - zfs_yubikey_autounlock.pools | length > 0
-      - (zfs_yubikey_autounlock.pools | map(attribute='name') | list | length) == (zfs_yubikey_autounlock.pools | length)
+      - zfs_yubikey_autounlock.pools is sequence
+      - zfs_yubikey_autounlock.pools | map('type_debug') | unique == ['str']
       - zfs_yubikey_autounlock_pushover is mapping
       - zfs_yubikey_autounlock_pushover.user is defined
       - zfs_yubikey_autounlock_pushover.token is defined

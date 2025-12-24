@@ -2,7 +2,7 @@
 # Role configuration (override per host via host_vars/group_vars)
 zfs_yubikey_autounlock:
   # Pools to unlock.
-  # Format: list of dicts: [{name: tank}, {name: backup}]
+  # Format: list of strings: [tank, backup]
   pools: []
 
   # YubiKey slot number (1 or 2)
