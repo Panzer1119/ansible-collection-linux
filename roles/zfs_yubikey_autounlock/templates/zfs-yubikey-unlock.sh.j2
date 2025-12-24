@@ -6,12 +6,12 @@ IFS=$'\n\t'
 LOGGER_TAG="zfs-yubikey-unlock"
 YKCHALRESP=/usr/bin/ykchalresp
 YKMAN=/usr/bin/ykman
-SLOT={{ zfs_yubikey_slot }}
-CHALLENGE_DIR="{{ zfs_yubikey_challenge_dir }}"
+SLOT={{ zfs_yubikey_autounlock.slot }}
+CHALLENGE_DIR="{{ zfs_yubikey_autounlock.challenge_dir }}"
 
-PUSHOVER_USER="{{ zfs_yubikey_pushover_user }}"
-PUSHOVER_TOKEN="{{ zfs_yubikey_pushover_token }}"
-PUSHOVER_TITLE="{{ zfs_yubikey_pushover_title }}"
+PUSHOVER_USER="{{ zfs_yubikey_autounlock_pushover.user }}"
+PUSHOVER_TOKEN="{{ zfs_yubikey_autounlock_pushover.token }}"
+PUSHOVER_TITLE="{{ zfs_yubikey_autounlock_pushover.title }}"
 
 log() {
     logger -t "${LOGGER_TAG}" -- "${1}"
@@ -72,7 +72,7 @@ unlock_pool() {
     KEYSTATUS=$(zfs get -H -o value keystatus "${POOL}" 2>/dev/null || echo "unknown")
     if [ "${KEYSTATUS}" = "available" ]; then
         log "Pool '${POOL}' already unlocked."
-        {% if zfs_yubikey_notify_success %}
+        {% if zfs_yubikey_autounlock.notify_success %}
         notify 0 "SUCCESS: Pool '${POOL}' is already unlocked."
         {% endif %}
         return 0
@@ -104,7 +104,7 @@ unlock_pool() {
 
     if printf '%s' "${PASSPHRASE}" | zfs load-key -r "${POOL}" >/dev/null 2>&1; then
         log "Pool '${POOL}' unlocked successfully."
-        {% if zfs_yubikey_notify_success %}
+        {% if zfs_yubikey_autounlock.notify_success %}
         notify 0 "SUCCESS: Pool '${POOL}' unlocked successfully."
         {% endif %}
         return 0
@@ -117,8 +117,8 @@ unlock_pool() {
 
 failures=0
 
-{% for pool in zfs_yubikey_pools %}
-if ! unlock_pool {{ pool }}; then
+{% for pool in zfs_yubikey_autounlock.pools %}
+if ! unlock_pool {{ pool.name | quote }}; then
     failures=$((failures + 1))
 fi
 {% endfor %}

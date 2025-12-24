@@ -2,7 +2,7 @@
 Description=Unlock ZFS pools using YubiKey
 DefaultDependencies=no
 After=local-fs.target
-Before=zfs-mount.service{% if zfs_yubikey_systemd_before_extra != "" %} {{ zfs_yubikey_systemd_before_extra }}{% endif %}
+Before=zfs-mount.service{% set extra = zfs_yubikey_autounlock.systemd_before_extra %}{% if extra is string %}{% if extra|trim != '' %} {{ extra }}{% endif %}{% else %}{% if extra|default([])|length > 0 %} {{ extra | join(' ') }}{% endif %}{% endif %}
 Wants=local-fs.target
 
 [Service]

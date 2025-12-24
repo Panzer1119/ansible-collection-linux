@@ -30,7 +30,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 
 ## Security notes
 
-- Challenge files in `{{ zfs_yubikey_challenge_dir }}` are **sensitive**. The role creates them with restrictive permissions.
+- Challenge files in `{{ zfs_yubikey_autounlock.challenge_dir }}` are **sensitive**. The role creates them with restrictive permissions.
 - Do **not** store Pushover credentials in plaintext inventories. Prefer Ansible Vault or a secrets backend.
 - The unlock script logs to journald/syslog via `logger` and does not print the derived passphrase.
 
@@ -38,14 +38,14 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 
 | Variable | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `zfs_yubikey_pools` | `list[str]` | `[]` | List of ZFS pool names to unlock. **Required.** |
-| `zfs_yubikey_slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
-| `zfs_yubikey_challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
-| `zfs_yubikey_pushover_user` | `str` | `""` | Pushover user key. Empty = no notifications. |
-| `zfs_yubikey_pushover_token` | `str` | `""` | Pushover API token. Empty = no notifications. |
-| `zfs_yubikey_pushover_title` | `str` | `"ZFS YubiKey Auto-Unlock"` | Pushover notification title. |
-| `zfs_yubikey_notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
-| `zfs_yubikey_systemd_before_extra` | `str` | `""` | Additional units appended to `Before=` (space-separated). `zfs-mount.service` is always included. |
+| `zfs_yubikey_autounlock.pools` | `list[dict]` | `[]` | Pools to unlock, e.g. `[{name: tank}, {name: backup}]`. **Required.** |
+| `zfs_yubikey_autounlock.slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
+| `zfs_yubikey_autounlock.challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
+| `zfs_yubikey_autounlock.systemd_before_extra` | `list[str]` | `[]` | Additional units appended to `Before=`. `zfs-mount.service` is always included. |
+| `zfs_yubikey_autounlock.notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
+| `zfs_yubikey_autounlock_pushover.user` | `str` | `""` | Pushover user key. Empty = no notifications. |
+| `zfs_yubikey_autounlock_pushover.token` | `str` | `""` | Pushover API token. Empty = no notifications. |
+| `zfs_yubikey_autounlock_pushover.title` | `str` | `"ZFS YubiKey Auto-Unlock"` | Pushover notification title. |
 
 ## Example playbook
 
@@ -55,17 +55,19 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
   roles:
     - role: zfs_yubikey_autounlock
       vars:
-        zfs_yubikey_pools:
-          - tank
-          - backup
-        zfs_yubikey_slot: 2
-        # Recommended: store these via Vault / secrets backend
-        zfs_yubikey_pushover_user: "uXXXXXXXXXXXX"
-        zfs_yubikey_pushover_token: "aXXXXXXXXXXXX"
-        zfs_yubikey_pushover_title: "ZFS YubiKey Auto-Unlock"
-        zfs_yubikey_notify_success: true
-        # Example (e.g. Proxmox):
-        zfs_yubikey_systemd_before_extra: "pve-storage.service"
+        zfs_yubikey_autounlock:
+          pools:
+            - name: tank
+            - name: backup
+          slot: 2
+          challenge_dir: /etc/zfs/yubikey
+          systemd_before_extra:
+            - pve-storage.service
+          notify_success: true
+        zfs_yubikey_autounlock_pushover:
+          user: "uXXXXXXXXXXXX"
+          token: "aXXXXXXXXXXXX"
+          title: "ZFS YubiKey Auto-Unlock"
 ```
 
 ## systemd integration
@@ -81,7 +83,7 @@ Logs:
 ## Limitations
 
 - Currently targets `apt`-based systems.
-- Only pools listed in `zfs_yubikey_pools` are processed.
+- Only pools listed in `zfs_yubikey_autounlock.pools` are processed.
 - If the YubiKey is missing or a challenge file is missing, the affected pool(s) will not be unlocked.
 
 ## Troubleshooting
@@ -92,5 +94,5 @@ Logs:
 - Verify YubiKey detection:
   - `ykman info`
 - Verify challenge files:
-  - `ls -l {{ zfs_yubikey_challenge_dir }}`
+  - `ls -l {{ zfs_yubikey_autounlock.challenge_dir }}`
   - files are named `<pool>.challenge`
