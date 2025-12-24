@@ -9,9 +9,9 @@ YKMAN=/usr/bin/ykman
 SLOT={{ zfs_yubikey_autounlock.slot }}
 CHALLENGE_DIR="{{ zfs_yubikey_autounlock.challenge_dir }}"
 
-PUSHOVER_USER="{{ zfs_yubikey_autounlock.pushover.user }}"
-PUSHOVER_TOKEN="{{ zfs_yubikey_autounlock.pushover.token }}"
-PUSHOVER_TITLE="{{ zfs_yubikey_autounlock.pushover.title }}"
+PUSHOVER_USER="{{ zfs_yubikey_autounlock_pushover.user }}"
+PUSHOVER_TOKEN="{{ zfs_yubikey_autounlock_pushover.token }}"
+PUSHOVER_TITLE="{{ zfs_yubikey_autounlock_pushover.title }}"
 
 log() {
     logger -t "${LOGGER_TAG}" -- "${1}"

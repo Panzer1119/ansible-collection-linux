@@ -14,10 +14,11 @@ zfs_yubikey_autounlock:
   # Additional systemd units appended to Before= (preferred: list)
   systemd_before_extra: []
 
-  pushover:
-    user: ""
-    token: ""
-    title: "ZFS YubiKey Auto-Unlock"
-
   # Whether to notify on successful pool unlock
   notify_success: true
+
+# Optional Pushover notifications
+zfs_yubikey_autounlock_pushover:
+  user: ""
+  token: ""
+  title: "ZFS YubiKey Auto-Unlock"

@@ -5,6 +5,10 @@
       - zfs_yubikey_autounlock.slot in [1, 2]
       - zfs_yubikey_autounlock.pools | length > 0
       - (zfs_yubikey_autounlock.pools | map(attribute='name') | list | length) == (zfs_yubikey_autounlock.pools | length)
+      - zfs_yubikey_autounlock_pushover is mapping
+      - zfs_yubikey_autounlock_pushover.user is defined
+      - zfs_yubikey_autounlock_pushover.token is defined
+      - zfs_yubikey_autounlock_pushover.title is defined
     fail_msg: >-
       Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
 

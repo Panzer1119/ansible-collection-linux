@@ -42,10 +42,10 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 | `zfs_yubikey_autounlock.slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
 | `zfs_yubikey_autounlock.challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
 | `zfs_yubikey_autounlock.systemd_before_extra` | `list[str]` | `[]` | Additional units appended to `Before=`. `zfs-mount.service` is always included. |
-| `zfs_yubikey_autounlock.pushover.user` | `str` | `""` | Pushover user key. Empty = no notifications. |
-| `zfs_yubikey_autounlock.pushover.token` | `str` | `""` | Pushover API token. Empty = no notifications. |
-| `zfs_yubikey_autounlock.pushover.title` | `str` | `"ZFS YubiKey Auto-Unlock"` | Pushover notification title. |
 | `zfs_yubikey_autounlock.notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
+| `zfs_yubikey_autounlock_pushover.user` | `str` | `""` | Pushover user key. Empty = no notifications. |
+| `zfs_yubikey_autounlock_pushover.token` | `str` | `""` | Pushover API token. Empty = no notifications. |
+| `zfs_yubikey_autounlock_pushover.title` | `str` | `"ZFS YubiKey Auto-Unlock"` | Pushover notification title. |
 
 ## Example playbook
 
@@ -63,11 +63,11 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
           challenge_dir: /etc/zfs/yubikey
           systemd_before_extra:
             - pve-storage.service
-          pushover:
-            user: "uXXXXXXXXXXXX"
-            token: "aXXXXXXXXXXXX"
-            title: "ZFS YubiKey Auto-Unlock"
           notify_success: true
+        zfs_yubikey_autounlock_pushover:
+          user: "uXXXXXXXXXXXX"
+          token: "aXXXXXXXXXXXX"
+          title: "ZFS YubiKey Auto-Unlock"
 ```
 
 ## systemd integration
