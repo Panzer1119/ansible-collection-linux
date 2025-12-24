@@ -1,21 +1,10 @@
 ---
-- name: Compute effective role configuration
-  ansible.builtin.set_fact:
-    zfs_yubikey_effective_slot: "{{ zfs_yubikey_autounlock.slot | int }}"
-    zfs_yubikey_effective_challenge_dir: "{{ zfs_yubikey_autounlock.challenge_dir }}"
-    zfs_yubikey_effective_notify_success: "{{ zfs_yubikey_autounlock.notify_success | bool }}"
-    zfs_yubikey_effective_pushover_user: "{{ zfs_yubikey_autounlock.pushover.user }}"
-    zfs_yubikey_effective_pushover_token: "{{ zfs_yubikey_autounlock.pushover.token }}"
-    zfs_yubikey_effective_pushover_title: "{{ zfs_yubikey_autounlock.pushover.title }}"
-    zfs_yubikey_effective_systemd_before_extra: "{{ zfs_yubikey_autounlock.systemd_before_extra }}"
-    zfs_yubikey_effective_pools: "{{ zfs_yubikey_autounlock_pools }}"
-
 - name: Validate configuration
   ansible.builtin.assert:
     that:
-      - zfs_yubikey_effective_slot in [1, 2]
-      - zfs_yubikey_effective_pools | length > 0
-      - (zfs_yubikey_effective_pools | map(attribute='name') | list | length) == (zfs_yubikey_effective_pools | length)
+      - zfs_yubikey_autounlock.slot in [1, 2]
+      - zfs_yubikey_autounlock.pools | length > 0
+      - (zfs_yubikey_autounlock.pools | map(attribute='name') | list | length) == (zfs_yubikey_autounlock.pools | length)
     fail_msg: >-
       Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
 
@@ -52,4 +41,3 @@
   ansible.builtin.systemd:
     name: zfs-yubikey-unlock.service
     enabled: true
-...

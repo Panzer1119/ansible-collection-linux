@@ -38,7 +38,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 
 | Variable | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `zfs_yubikey_autounlock_pools` | `list[dict]` | `[]` | Pools to unlock, e.g. `[{name: tank}, {name: backup}]`. **Required.** |
+| `zfs_yubikey_autounlock.pools` | `list[dict]` | `[]` | Pools to unlock, e.g. `[{name: tank}, {name: backup}]`. **Required.** |
 | `zfs_yubikey_autounlock.slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
 | `zfs_yubikey_autounlock.challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
 | `zfs_yubikey_autounlock.systemd_before_extra` | `list[str]` | `[]` | Additional units appended to `Before=`. `zfs-mount.service` is always included. |
@@ -55,10 +55,10 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
   roles:
     - role: zfs_yubikey_autounlock
       vars:
-        zfs_yubikey_autounlock_pools:
-          - name: tank
-          - name: backup
         zfs_yubikey_autounlock:
+          pools:
+            - name: tank
+            - name: backup
           slot: 2
           challenge_dir: /etc/zfs/yubikey
           systemd_before_extra:
@@ -83,7 +83,7 @@ Logs:
 ## Limitations
 
 - Currently targets `apt`-based systems.
-- Only pools listed in `zfs_yubikey_autounlock_pools` are processed.
+- Only pools listed in `zfs_yubikey_autounlock.pools` are processed.
 - If the YubiKey is missing or a challenge file is missing, the affected pool(s) will not be unlocked.
 
 ## Troubleshooting
