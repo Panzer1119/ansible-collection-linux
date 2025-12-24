@@ -15,6 +15,9 @@ zfs_yubikey_systemd_before_extra: ""
 zfs_yubikey_pushover_user: ""
 zfs_yubikey_pushover_token: ""
 
+# Optional Pushover notification title
+zfs_yubikey_pushover_title: "ZFS YubiKey Auto-Unlock"
+
 # Whether to notify on successful pool unlock (default: true)
 zfs_yubikey_notify_success: true
 ...

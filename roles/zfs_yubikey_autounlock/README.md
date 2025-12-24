@@ -43,6 +43,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 | `zfs_yubikey_challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
 | `zfs_yubikey_pushover_user` | `str` | `""` | Pushover user key. Empty = no notifications. |
 | `zfs_yubikey_pushover_token` | `str` | `""` | Pushover API token. Empty = no notifications. |
+| `zfs_yubikey_pushover_title` | `str` | `"ZFS YubiKey Auto-Unlock"` | Pushover notification title. |
 | `zfs_yubikey_notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
 | `zfs_yubikey_systemd_before_extra` | `str` | `""` | Additional units appended to `Before=` (space-separated). `zfs-mount.service` is always included. |
 
@@ -61,6 +62,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
         # Recommended: store these via Vault / secrets backend
         zfs_yubikey_pushover_user: "uXXXXXXXXXXXX"
         zfs_yubikey_pushover_token: "aXXXXXXXXXXXX"
+        zfs_yubikey_pushover_title: "ZFS YubiKey Auto-Unlock"
         zfs_yubikey_notify_success: true
         # Example (e.g. Proxmox):
         zfs_yubikey_systemd_before_extra: "pve-storage.service"
