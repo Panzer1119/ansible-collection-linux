@@ -1,24 +1,40 @@
 ---
 - name: Create challenge directory
-  file:
+  ansible.builtin.file:
     path: "{{ zfs_yubikey_challenge_dir }}"
     state: directory
     owner: root
     group: root
     mode: "0700"
 
-- name: Generate challenge files if missing
-  command: >
-    sh -c 'head -c 32 /dev/urandom | base64 > {{ zfs_yubikey_challenge_dir }}/{{ item }}.challenge'
-  args:
-    creates: "{{ zfs_yubikey_challenge_dir }}/{{ item }}.challenge"
-  loop: "{{ zfs_yubikey_pools }}"
-
-- name: Set permissions on challenge files
-  file:
+- name: Check existing challenge files
+  ansible.builtin.stat:
     path: "{{ zfs_yubikey_challenge_dir }}/{{ item }}.challenge"
+  loop: "{{ zfs_yubikey_pools }}"
+  register: zfs_yubikey_challenge_stats
+
+- name: Generate missing challenge files (32 bytes, base64)
+  ansible.builtin.command:
+    cmd: "openssl rand -base64 32"
+  register: zfs_yubikey_challenge_generated
+  changed_when: true
+  no_log: true
+  loop: "{{ zfs_yubikey_challenge_stats.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists
+
+- name: Write generated challenge files
+  ansible.builtin.copy:
+    dest: "{{ zfs_yubikey_challenge_dir }}/{{ item.item.item }}.challenge"
+    content: "{{ item.stdout }}\n"
     owner: root
     group: root
     mode: "0600"
-  loop: "{{ zfs_yubikey_pools }}"
+    force: false
+  no_log: true
+  loop: "{{ zfs_yubikey_challenge_generated.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.item }}"
+  when: item is not skipped
 ...

@@ -2,6 +2,7 @@
 - name: Install YubiKey tooling
   apt:
     name:
+      - openssl
       - yubikey-manager
       - yubikey-personalization
     state: present
