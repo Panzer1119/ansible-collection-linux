@@ -1,6 +1,20 @@
 ---
+- name: Validate configuration
+  ansible.builtin.assert:
+    that:
+      - zfs_yubikey_autounlock.slot in [1, 2]
+      - zfs_yubikey_autounlock.pools | length > 0
+      - zfs_yubikey_autounlock.pools is sequence
+      - zfs_yubikey_autounlock.pools | map('type_debug') | unique == ['str']
+      - zfs_yubikey_autounlock_pushover is mapping
+      - zfs_yubikey_autounlock_pushover.user is defined
+      - zfs_yubikey_autounlock_pushover.token is defined
+      - zfs_yubikey_autounlock_pushover.title is defined
+    fail_msg: >-
+      Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
+
 - name: Install YubiKey tooling
-  apt:
+  ansible.builtin.apt:
     name:
       - openssl
       - yubikey-manager
@@ -9,10 +23,10 @@
     update_cache: true
 
 - name: Ensure challenge files exist
-  import_tasks: challenges.yml
+  ansible.builtin.import_tasks: challenges.yml
 
 - name: Install ZFS YubiKey unlock script
-  template:
+  ansible.builtin.template:
     src: zfs-yubikey-unlock.sh.j2
     dest: /usr/local/sbin/zfs-yubikey-unlock.sh
     owner: root
@@ -20,7 +34,7 @@
     mode: "0700"
 
 - name: Install systemd unit
-  template:
+  ansible.builtin.template:
     src: zfs-yubikey-unlock.service.j2
     dest: /etc/systemd/system/zfs-yubikey-unlock.service
     owner: root
@@ -29,7 +43,7 @@
   notify: reload systemd
 
 - name: Enable unlock service
-  systemd:
+  ansible.builtin.systemd:
     name: zfs-yubikey-unlock.service
     enabled: true
 ...
