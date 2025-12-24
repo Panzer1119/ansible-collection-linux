@@ -40,6 +40,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 | :--- | :--- | :--- | :--- |
 | `zfs_yubikey_pools` | `list[str]` | `[]` | Pools to unlock, e.g. `[tank, backup]`. **Required.** |
 | `zfs_yubikey_slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
+| `zfs_yubikey_serial` | `str` | `""` | Optional YubiKey serial number to use (useful if multiple YubiKeys are connected). Empty = use the first detected device. |
 | `zfs_yubikey_challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
 | `zfs_yubikey_systemd_before_extra` | `list[str]` | `[]` | Additional units appended to `Before=`. `zfs-mount.service` is always included. |
 | `zfs_yubikey_notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
@@ -59,6 +60,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
           - tank
           - backup
         zfs_yubikey_slot: 2
+        zfs_yubikey_serial: "1234567"  # optional
         zfs_yubikey_challenge_dir: /etc/zfs/yubikey
         zfs_yubikey_systemd_before_extra:
           - pve-storage.service

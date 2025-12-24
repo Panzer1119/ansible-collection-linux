@@ -6,6 +6,10 @@ zfs_yubikey_pools: []
 # YubiKey slot number (1 or 2)
 zfs_yubikey_slot: 2
 
+# Optional: YubiKey serial number to use (passed to ykman/ykchalresp).
+# Empty string means: use the first detected YubiKey.
+zfs_yubikey_serial: ""
+
 # Directory to store challenge files
 zfs_yubikey_challenge_dir: /etc/zfs/yubikey
 

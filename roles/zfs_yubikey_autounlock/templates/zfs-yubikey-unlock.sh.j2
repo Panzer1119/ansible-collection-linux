@@ -13,6 +13,17 @@ PUSHOVER_USER="{{ zfs_yubikey_pushover_user }}"
 PUSHOVER_TOKEN="{{ zfs_yubikey_pushover_token }}"
 PUSHOVER_TITLE="{{ zfs_yubikey_pushover_title }}"
 
+# Optional: pin to a specific YubiKey by serial number.
+YUBIKEY_SERIAL="{{ zfs_yubikey_serial | default('') }}"
+YKMAN_DEVICE_ARGS=()
+YKCHALRESP_DEVICE_ARGS=()
+if [ -n "${YUBIKEY_SERIAL}" ]; then
+    # ykman uses -d/--device to select a YubiKey by serial.
+    YKMAN_DEVICE_ARGS=("-d" "${YUBIKEY_SERIAL}")
+    # ykchalresp uses -d to select a YubiKey by serial.
+    YKCHALRESP_DEVICE_ARGS=("-d" "${YUBIKEY_SERIAL}")
+fi
+
 # Pools are passed as arguments from systemd (preferred).
 # Backward-compatible fallback: if no args are provided, read pools from
 # whitespace-separated env var ZFS_YUBIKEY_POOLS.
@@ -70,7 +81,7 @@ fi
 # Check for YubiKey once
 # ------------------------------------------------------------
 YUBIKEY_PRESENT=0
-if "${YKMAN}" info >/dev/null 2>&1; then
+if "${YKMAN}" "${YKMAN_DEVICE_ARGS[@]}" info >/dev/null 2>&1; then
     YUBIKEY_PRESENT=1
     log "YubiKey detected."
 else
@@ -109,7 +120,7 @@ unlock_pool() {
     CHALLENGE_HEX=$(base64 -d "${CHALLENGE_FILE}" | xxd -p -c 256)
 
     local PASSPHRASE
-    PASSPHRASE=$("${YKCHALRESP}" -"${SLOT}" "${CHALLENGE_HEX}" 2>/dev/null || true)
+    PASSPHRASE=$("${YKCHALRESP}" "${YKCHALRESP_DEVICE_ARGS[@]}" -"${SLOT}" "${CHALLENGE_HEX}" 2>/dev/null || true)
     if [ -z "${PASSPHRASE}" ]; then
         log "ERROR: ykchalresp returned empty response for pool '${POOL}'."
         notify 1 "ERROR: ykchalresp returned empty response for pool '${POOL}'."
