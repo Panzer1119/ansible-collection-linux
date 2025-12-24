@@ -1,4 +1,46 @@
 ---
+- name: Compute effective role configuration (new vars + legacy fallback)
+  ansible.builtin.set_fact:
+    zfs_yubikey_effective_slot: >-
+      {{ zfs_yubikey_autounlock.slot
+         | default(zfs_yubikey_slot)
+         | int }}
+    zfs_yubikey_effective_challenge_dir: >-
+      {{ zfs_yubikey_autounlock.challenge_dir
+         | default(zfs_yubikey_challenge_dir) }}
+    zfs_yubikey_effective_notify_success: >-
+      {{ zfs_yubikey_autounlock.notify_success
+         | default(zfs_yubikey_notify_success)
+         | bool }}
+    zfs_yubikey_effective_pushover_user: >-
+      {{ zfs_yubikey_autounlock.pushover.user
+         | default(zfs_yubikey_pushover_user) }}
+    zfs_yubikey_effective_pushover_token: >-
+      {{ zfs_yubikey_autounlock.pushover.token
+         | default(zfs_yubikey_pushover_token) }}
+    zfs_yubikey_effective_pushover_title: >-
+      {{ zfs_yubikey_autounlock.pushover.title
+         | default(zfs_yubikey_pushover_title) }}
+    zfs_yubikey_effective_systemd_before_extra: >-
+      {{ zfs_yubikey_autounlock.systemd_before_extra
+         | default(zfs_yubikey_systemd_before_extra) }}
+    zfs_yubikey_effective_pools: >-
+      {{ (zfs_yubikey_autounlock_pools | default([]))
+         if (zfs_yubikey_autounlock_pools | default([]) | length > 0)
+         else (zfs_yubikey_pools | default([])
+               | map('regex_replace', '^(.*)$', '{"name": "\\1"}')
+               | map('from_json')
+               | list) }}
+
+- name: Validate configuration
+  ansible.builtin.assert:
+    that:
+      - zfs_yubikey_effective_slot in [1, 2]
+      - zfs_yubikey_effective_pools | length > 0
+      - (zfs_yubikey_effective_pools | map(attribute='name') | list | length) == (zfs_yubikey_effective_pools | length)
+    fail_msg: >-
+      Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
+
 - name: Install YubiKey tooling
   apt:
     name:

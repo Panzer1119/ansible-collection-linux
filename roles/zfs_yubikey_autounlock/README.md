@@ -30,7 +30,7 @@ Optional Pushover notifications can alert on failures and (optionally) on succes
 
 ## Security notes
 
-- Challenge files in `{{ zfs_yubikey_challenge_dir }}` are **sensitive**. The role creates them with restrictive permissions.
+- Challenge files in `{{ zfs_yubikey_effective_challenge_dir | default(zfs_yubikey_challenge_dir) }}` are **sensitive**. The role creates them with restrictive permissions.
 - Do **not** store Pushover credentials in plaintext inventories. Prefer Ansible Vault or a secrets backend.
 - The unlock script logs to journald/syslog via `logger` and does not print the derived passphrase.
 
@@ -81,7 +81,7 @@ Logs:
 ## Limitations
 
 - Currently targets `apt`-based systems.
-- Only pools listed in `zfs_yubikey_pools` are processed.
+- Only pools listed in `zfs_yubikey_autounlock_pools` (or legacy `zfs_yubikey_pools`) are processed.
 - If the YubiKey is missing or a challenge file is missing, the affected pool(s) will not be unlocked.
 
 ## Troubleshooting
@@ -92,5 +92,5 @@ Logs:
 - Verify YubiKey detection:
   - `ykman info`
 - Verify challenge files:
-  - `ls -l {{ zfs_yubikey_challenge_dir }}`
+  - `ls -l {{ zfs_yubikey_effective_challenge_dir | default(zfs_yubikey_challenge_dir) }}`
   - files are named `<pool>.challenge`
