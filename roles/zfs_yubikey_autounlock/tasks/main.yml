@@ -39,5 +39,5 @@
 - name: Enable unlock service
   ansible.builtin.systemd:
     name: zfs-yubikey-unlock.service
-    enabled: true
+    enabled: "{{ zfs_yubikey_pools | length | int > 0 }}"
 ...
