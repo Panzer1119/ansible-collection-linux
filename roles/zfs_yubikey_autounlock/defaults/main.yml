@@ -1,25 +1,22 @@
 ---
-# Role configuration (override per host via host_vars/group_vars)
-zfs_yubikey_autounlock:
-  # Pools to unlock.
-  # Format: list of strings: [tank, backup]
-  pools: []
+# Pools to unlock.
+# Format: list of strings: [tank, backup]
+zfs_yubikey_pools: []
 
-  # YubiKey slot number (1 or 2)
-  slot: 2
+# YubiKey slot number (1 or 2)
+zfs_yubikey_slot: 2
 
-  # Directory to store challenge files
-  challenge_dir: /etc/zfs/yubikey
+# Directory to store challenge files
+zfs_yubikey_challenge_dir: /etc/zfs/yubikey
 
-  # Additional systemd units appended to Before= (preferred: list)
-  systemd_before_extra: []
+# Additional systemd units appended to Before= (preferred: list)
+zfs_yubikey_systemd_before_extra: []
 
-  # Whether to notify on successful pool unlock
-  notify_success: true
+# Whether to notify on successful pool unlock
+zfs_yubikey_notify_success: true
 
 # Optional Pushover notifications
-zfs_yubikey_autounlock_pushover:
-  user: ""
-  token: ""
-  title: "ZFS YubiKey Auto-Unlock"
+zfs_yubikey_pushover_user: ""
+zfs_yubikey_pushover_token: ""
+zfs_yubikey_pushover_title: "ZFS YubiKey Auto-Unlock"
 ...
