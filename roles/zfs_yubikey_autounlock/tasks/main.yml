@@ -3,7 +3,6 @@
   ansible.builtin.assert:
     that:
       - zfs_yubikey_slot in [1, 2]
-      - zfs_yubikey_pools | length > 0
       - zfs_yubikey_pools is sequence
       - zfs_yubikey_pools | map('type_debug') | unique == ['str']
     fail_msg: >-
