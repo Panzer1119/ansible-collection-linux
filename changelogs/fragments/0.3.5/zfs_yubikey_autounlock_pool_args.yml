@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - zfs_yubikey_autounlock - Pass configured ZFS pool names as arguments from the systemd unit to the unlock script, instead of embedding the pool list into the script template.
+
