@@ -72,3 +72,11 @@ releases:
     fragments:
       - zfs_yubikey_autounlock_vars.yml
     release_date: '2025-12-24'
+  0.3.3:
+    changes:
+      bugfixes:
+        - 'zfs_yubikey_autounlock role: add a systemd daemon-reload handler to ensure
+          newly installed/updated unit files are picked up by systemd.'
+    fragments:
+      - systemd_reload_handler.yml
+    release_date: '2025-12-24'

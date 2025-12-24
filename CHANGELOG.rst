@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.3.3
+======
+
+Bugfixes
+--------
+
+- zfs_yubikey_autounlock role: add a systemd daemon-reload handler to ensure newly installed/updated unit files are picked up by systemd.
+
 v0.3.2
 ======
 
