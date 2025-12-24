@@ -4,9 +4,8 @@
     that:
       - zfs_yubikey_slot in [1, 2]
       - zfs_yubikey_pools is sequence
-      - zfs_yubikey_pools | map('type_debug') | unique == ['str']
     fail_msg: >-
-      Invalid zfs_yubikey_autounlock configuration. Ensure you set pools and slot is 1 or 2.
+      Invalid zfs_yubikey_autounlock configuration. Ensure pools is sequence or slot is 1 or 2.
 
 - name: Install YubiKey tooling
   ansible.builtin.apt:
