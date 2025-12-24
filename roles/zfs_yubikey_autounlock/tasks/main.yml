@@ -13,6 +13,7 @@
       - openssl
       - yubikey-manager
       - yubikey-personalization
+      - xxd
     state: present
     update_cache: true
 
