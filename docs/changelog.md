@@ -1,9 +1,20 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-3-2"></a>
+## v0\.3\.2
+
+<a id="minor-changes"></a>
+### Minor Changes
+
+* zfs\_yubikey\_autounlock role\: change <code>zfs\_yubikey\_systemd\_before\_extra</code> default to a list \(still rendered space\-separated in the systemd unit\)\.
+* zfs\_yubikey\_autounlock role\: keep pools as a list of pool name strings \(<code>zfs\_yubikey\_pools</code>\)\.
+* zfs\_yubikey\_autounlock role\: move Pushover notification settings to dedicated variables \(<code>zfs\_yubikey\_pushover\_user</code>\, <code>zfs\_yubikey\_pushover\_token</code>\, <code>zfs\_yubikey\_pushover\_title</code>\)\.
+* zfs\_yubikey\_autounlock role\: refactor configuration to use separate role variables again \(<code>zfs\_yubikey\_pools</code>\, <code>zfs\_yubikey\_slot</code>\, <code>zfs\_yubikey\_challenge\_dir</code>\, <code>zfs\_yubikey\_systemd\_before\_extra</code>\, <code>zfs\_yubikey\_notify\_success</code>\)\.
+
 <a id="v0-3-1"></a>
 ## v0\.3\.1
 
-<a id="minor-changes"></a>
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock role\: move Pushover notification settings to a dedicated top\-level dict \(<code>zfs\_yubikey\_autounlock\_pushover</code>\)\.
@@ -12,7 +23,7 @@
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="minor-changes-1"></a>
+<a id="minor-changes-2"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add role to automatically unlock encrypted ZFS pools at boot using a pre\-programmed YubiKey \(HMAC\-SHA1 challenge\-response\)\, with optional Pushover notifications\.
@@ -33,7 +44,7 @@
 
 * set\_up\_docker\_registry\_mirror\_vm \- Remove orphaned containers\.
 
-<a id="minor-changes-2"></a>
+<a id="minor-changes-3"></a>
 ### Minor Changes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Add variable to disable usage of Let\'s Encrypt\.
