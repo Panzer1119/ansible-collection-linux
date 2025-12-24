@@ -80,3 +80,5 @@ releases:
     fragments:
       - systemd_reload_handler.yml
     release_date: '2025-12-24'
+  0.3.4:
+    release_date: '2025-12-24'
