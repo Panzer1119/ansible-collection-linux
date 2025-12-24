@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.3.0
+======
+
+Minor Changes
+-------------
+
+- zfs_yubikey_autounlock - Add role to automatically unlock encrypted ZFS pools at boot using a pre-programmed YubiKey (HMAC-SHA1 challenge-response), with optional Pushover notifications.
+
 v0.2.1
 ======
 
