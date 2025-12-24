@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.3.10
+=======
+
+Minor Changes
+-------------
+
+- zfs_yubikey_autounlock - Add optional ``zfs_yubikey_serial`` to pin ykman/ykchalresp to a specific YubiKey device when multiple are connected.
+
 v0.3.9
 ======
 

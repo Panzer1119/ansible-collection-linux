@@ -92,3 +92,11 @@ releases:
     release_date: '2025-12-24'
   0.3.9:
     release_date: '2025-12-24'
+  0.3.10:
+    changes:
+      minor_changes:
+        - zfs_yubikey_autounlock - Add optional ``zfs_yubikey_serial`` to pin ykman/ykchalresp
+          to a specific YubiKey device when multiple are connected.
+    fragments:
+      - zfs_yubikey_autounlock_pool_args.yml
+    release_date: '2025-12-24'
