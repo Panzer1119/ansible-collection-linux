@@ -4,6 +4,9 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.3.8
+======
+
 v0.3.7
 ======
 
