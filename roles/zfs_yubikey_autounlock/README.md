@@ -74,9 +74,21 @@ The role installs and enables:
 
 - `zfs-yubikey-unlock.service` (Type=oneshot)
 
+The configured pools are passed to the unlock script as **command-line arguments** via `ExecStart=`.
+
 Logs:
 
 - `journalctl -u zfs-yubikey-unlock.service -b`
+
+## Manual usage
+
+The script expects pool names as arguments:
+
+- `/usr/local/sbin/zfs-yubikey-unlock.sh tank backup`
+
+If you run it without arguments, you can provide a whitespace-separated list via `ZFS_YUBIKEY_POOLS`:
+
+- `ZFS_YUBIKEY_POOLS="tank backup" /usr/local/sbin/zfs-yubikey-unlock.sh`
 
 ## Limitations
 

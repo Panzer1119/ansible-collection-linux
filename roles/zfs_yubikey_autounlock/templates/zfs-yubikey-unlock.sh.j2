@@ -13,6 +13,20 @@ PUSHOVER_USER="{{ zfs_yubikey_pushover_user }}"
 PUSHOVER_TOKEN="{{ zfs_yubikey_pushover_token }}"
 PUSHOVER_TITLE="{{ zfs_yubikey_pushover_title }}"
 
+# Pools are passed as arguments from systemd (preferred).
+# Backward-compatible fallback: if no args are provided, read pools from
+# whitespace-separated env var ZFS_YUBIKEY_POOLS.
+if [ "$#" -gt 0 ]; then
+    POOLS=("$@")
+else
+    if [ -n "${ZFS_YUBIKEY_POOLS:-}" ]; then
+        IFS=" " read -r -a POOLS <<< "${ZFS_YUBIKEY_POOLS}"
+    else
+        echo "ERROR: No ZFS pools specified. Pass pool names as arguments (preferred) or set ZFS_YUBIKEY_POOLS." >&2
+        exit 2
+    fi
+fi
+
 log() {
     logger -t "${LOGGER_TAG}" -- "${1}"
 }
@@ -117,11 +131,11 @@ unlock_pool() {
 
 failures=0
 
-{% for pool in zfs_yubikey_pools %}
-if ! unlock_pool {{ pool | quote }}; then
-    failures=$((failures + 1))
-fi
-{% endfor %}
+for pool in "${POOLS[@]}"; do
+    if ! unlock_pool "${pool}"; then
+        failures=$((failures + 1))
+    fi
+done
 
 if [ "${failures}" -gt 0 ]; then
     log "ZFS YubiKey unlock completed with ${failures} failure(s)."

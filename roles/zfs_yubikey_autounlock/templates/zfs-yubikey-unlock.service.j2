@@ -9,7 +9,7 @@ Wants=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/zfs-yubikey-unlock.sh
+ExecStart=/usr/local/sbin/zfs-yubikey-unlock.sh{% for pool in zfs_yubikey_pools %} {{ pool | quote }}{% endfor %}
 RemainAfterExit=yes
 
 [Install]
