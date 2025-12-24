@@ -1,0 +1,5 @@
+---
+minor_changes:
+  - "zfs_yubikey_autounlock role: refactor configuration variables to a single config dict (``zfs_yubikey_autounlock``) with ``pools`` as a list of pool name strings, and remove legacy variable support."
+  - "zfs_yubikey_autounlock role: move Pushover notification settings to a dedicated top-level dict (``zfs_yubikey_autounlock_pushover``)."
+
