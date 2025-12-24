@@ -1,37 +1,52 @@
 # zfs_yubikey_autounlock
 
-Ansible role to configure automatic unlocking of encrypted ZFS pools using a **pre-programmed YubiKey**.  
+Ansible role to configure **automatic unlocking of encrypted ZFS pools at boot** using a **pre-programmed YubiKey** (HMAC-SHA1 challenge-response).
 
-**Important:** This role **does not** program YubiKeys, create ZFS pools, or re-key existing pools. It only prepares the host, generates challenge files (if missing), installs the unlock script, and integrates with systemd.  
+## Scope
 
-Optional Pushover notifications can alert on failures and/or successful unlocks.
+This role **does not**:
 
-—
+- program YubiKeys,
+- create or modify ZFS pools,
+- change ZFS key formats or re-key existing pools.
+
+It **does**:
+
+- install required packages,
+- create per-pool challenge files (only if missing),
+- install an unlock script,
+- install and enable a `systemd` oneshot service.
+
+Optional Pushover notifications can alert on failures and (optionally) on successful unlocks.
 
 ## Requirements
 
-- Server (Debian/Ubuntu based)
-- Pre-programmed YubiKey (slot configured for HMAC-SHA1 challenge-response)
+- Debian/Ubuntu (or derivatives) with `apt` and `systemd`
+- ZFS installed and pools already exist
+- Pools are configured so `zfs load-key` can unlock them (e.g., passphrase/keylocation as appropriate)
+- YubiKey is pre-configured in slot **1** or **2** for HMAC-SHA1 challenge-response
 - Root privileges on the host
-- Optional: Pushover account + API token for notifications
+- Optional: Pushover account + API token
 
-—
+## Security notes
 
-## Role Variables
+- Challenge files in `{{ zfs_yubikey_challenge_dir }}` are **sensitive**. The role creates them with restrictive permissions.
+- Do **not** store Pushover credentials in plaintext inventories. Prefer Ansible Vault or a secrets backend.
+- The unlock script logs to journald/syslog via `logger` and does not print the derived passphrase.
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `zfs_yubikey_pools` | `[]` | List of ZFS pool names to unlock. **Required.** |
-| `zfs_yubikey_slot` | `2` | YubiKey slot number used for challenge-response (1 or 2). |
-| `zfs_yubikey_challenge_dir` | `/etc/zfs/yubikey` | Directory to store challenge files. |
-| `zfs_yubikey_pushover_user` | `""` | Pushover user key. If empty, no notifications are sent. |
-| `zfs_yubikey_pushover_token` | `""` | Pushover API token. If empty, no notifications are sent. |
-| `zfs_yubikey_notify_success` | `true` | Whether to send Pushover notifications on successful unlocks (priority 0). |
-| `zfs_yubikey_systemd_before_extra` | `""` | Additional systemd units to append to the `Before=` directive. `zfs-mount.service` is always included. |
+## Role variables
 
-—
+| Variable | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `zfs_yubikey_pools` | `list[str]` | `[]` | List of ZFS pool names to unlock. **Required.** |
+| `zfs_yubikey_slot` | `int` | `2` | YubiKey slot used for challenge-response (1 or 2). |
+| `zfs_yubikey_challenge_dir` | `str` | `/etc/zfs/yubikey` | Directory to store challenge files (`<pool>.challenge`). |
+| `zfs_yubikey_pushover_user` | `str` | `""` | Pushover user key. Empty = no notifications. |
+| `zfs_yubikey_pushover_token` | `str` | `""` | Pushover API token. Empty = no notifications. |
+| `zfs_yubikey_notify_success` | `bool` | `true` | Send Pushover notifications on successful unlocks (priority 0). |
+| `zfs_yubikey_systemd_before_extra` | `str` | `""` | Additional units appended to `Before=` (space-separated). `zfs-mount.service` is always included. |
 
-## Example Playbook
+## Example playbook
 
 ```yaml
 - hosts: all
@@ -43,8 +58,37 @@ Optional Pushover notifications can alert on failures and/or successful unlocks.
           - tank
           - backup
         zfs_yubikey_slot: 2
+        # Recommended: store these via Vault / secrets backend
         zfs_yubikey_pushover_user: "uXXXXXXXXXXXX"
         zfs_yubikey_pushover_token: "aXXXXXXXXXXXX"
         zfs_yubikey_notify_success: true
+        # Example (e.g. Proxmox):
         zfs_yubikey_systemd_before_extra: "pve-storage.service"
 ```
+
+## systemd integration
+
+The role installs and enables:
+
+- `zfs-yubikey-unlock.service` (Type=oneshot)
+
+Logs:
+
+- `journalctl -u zfs-yubikey-unlock.service -b`
+
+## Limitations
+
+- Currently targets `apt`-based systems.
+- Only pools listed in `zfs_yubikey_pools` are processed.
+- If the YubiKey is missing or a challenge file is missing, the affected pool(s) will not be unlocked.
+
+## Troubleshooting
+
+- Check service status:
+  - `systemctl status zfs-yubikey-unlock.service`
+  - `journalctl -u zfs-yubikey-unlock.service -b`
+- Verify YubiKey detection:
+  - `ykman info`
+- Verify challenge files:
+  - `ls -l {{ zfs_yubikey_challenge_dir }}`
+  - files are named `<pool>.challenge`
