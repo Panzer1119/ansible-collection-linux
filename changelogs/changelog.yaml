@@ -125,3 +125,10 @@ releases:
     fragments:
       - 0.4.2.yml
     release_date: '2026-01-13'
+  0.4.3:
+    changes:
+      minor_changes:
+        - zbm_mint_provision - Add APT Proxy support for LIVE ISO.
+    fragments:
+      - 0.4.3.yml
+    release_date: '2026-01-13'

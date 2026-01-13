@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.4.3
+======
+
+Minor Changes
+-------------
+
+- zbm_mint_provision - Add APT Proxy support for LIVE ISO.
+
 v0.4.2
 ======
 
