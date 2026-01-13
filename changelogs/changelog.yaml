@@ -111,3 +111,10 @@ releases:
           name: zbm_mint_provision
           namespace: null
     release_date: '2026-01-13'
+  0.4.1:
+    changes:
+      minor_changes:
+        - zbm_mint_provision - Add README.md file.
+    fragments:
+      - 0.4.1.yml
+    release_date: '2026-01-13'
