@@ -66,6 +66,9 @@
   args:
     creates: /mnt/bin/bash
 
+- name: Snapshot after debootstrap
+  command: zfs snapshot -r {{ pool_name }}/ROOT@post-debootstrap
+
 - name: Copy HostID and Resolv.conf
   copy:
     src: "{{ item.src }}"
@@ -100,6 +103,9 @@
     chroot /mnt apt install -y --no-install-recommends \
       linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
 
+- name: Snapshot before Mint installation
+  command: zfs snapshot -r {{ pool_name }}/ROOT@pre-mint-install
+
 - name: Install Mint Keyring (Chroot)
   shell: |
     chroot /mnt apt install -y wget gnupg
@@ -117,6 +123,9 @@
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
       mint-meta-cinnamon
+
+- name: Snapshot after Mint installation
+  command: zfs snapshot -r {{ pool_name }}/ROOT@post-mint-install
 
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
@@ -150,6 +159,9 @@
   shell: |
     mount -t efivarfs efivarfs /mnt/sys/firmware/efi/efivars || true
     chroot /mnt efibootmgr -c -d {{ boot_disk }} -p {{ boot_part_num }} -L "ZFSBootMenu" -l '\EFI\ZBM\VMLINUZ.EFI'
+
+- name: Snapshot before final export
+  command: zfs snapshot -r {{ pool_name }}/ROOT@pre-export
 
 - name: Finalize and Export
   shell: |
