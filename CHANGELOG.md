@@ -2,13 +2,15 @@
 
 **Topics**
 
+- <a href="#v0-4-6">v0\.4\.6</a>
+    - <a href="#bugfixes">Bugfixes</a>
 - <a href="#v0-4-5">v0\.4\.5</a>
     - <a href="#minor-changes">Minor Changes</a>
 - <a href="#v0-4-4">v0\.4\.4</a>
 - <a href="#v0-4-3">v0\.4\.3</a>
     - <a href="#minor-changes-1">Minor Changes</a>
 - <a href="#v0-4-2">v0\.4\.2</a>
-    - <a href="#bugfixes">Bugfixes</a>
+    - <a href="#bugfixes-1">Bugfixes</a>
 - <a href="#v0-4-1">v0\.4\.1</a>
     - <a href="#minor-changes-2">Minor Changes</a>
 - <a href="#v0-4-0">v0\.4\.0</a>
@@ -23,7 +25,7 @@
 - <a href="#v0-3-5">v0\.3\.5</a>
 - <a href="#v0-3-4">v0\.3\.4</a>
 - <a href="#v0-3-3">v0\.3\.3</a>
-    - <a href="#bugfixes-1">Bugfixes</a>
+    - <a href="#bugfixes-2">Bugfixes</a>
 - <a href="#v0-3-2">v0\.3\.2</a>
     - <a href="#minor-changes-4">Minor Changes</a>
 - <a href="#v0-3-1">v0\.3\.1</a>
@@ -31,15 +33,23 @@
 - <a href="#v0-3-0">v0\.3\.0</a>
     - <a href="#minor-changes-6">Minor Changes</a>
 - <a href="#v0-2-1">v0\.2\.1</a>
-    - <a href="#bugfixes-2">Bugfixes</a>
+    - <a href="#bugfixes-3">Bugfixes</a>
 - <a href="#v0-2-0">v0\.2\.0</a>
     - <a href="#major-changes">Major Changes</a>
     - <a href="#minor-changes-7">Minor Changes</a>
 - <a href="#v0-1-1">v0\.1\.1</a>
-    - <a href="#bugfixes-3">Bugfixes</a>
+    - <a href="#bugfixes-4">Bugfixes</a>
 - <a href="#v0-1-0">v0\.1\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
     - <a href="#new-roles-1">New Roles</a>
+
+<a id="v0-4-6"></a>
+## v0\.4\.6
+
+<a id="bugfixes"></a>
+### Bugfixes
+
+* zbm\_mint\_provision \- Fix stuff\.
 
 <a id="v0-4-5"></a>
 ## v0\.4\.5
@@ -63,7 +73,7 @@
 <a id="v0-4-2"></a>
 ## v0\.4\.2
 
-<a id="bugfixes"></a>
+<a id="bugfixes-1"></a>
 ### Bugfixes
 
 * zbm\_mint\_provision \- Fix fact setting\.
@@ -118,7 +128,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-3"></a>
 ## v0\.3\.3
 
-<a id="bugfixes-1"></a>
+<a id="bugfixes-2"></a>
 ### Bugfixes
 
 * zfs\_yubikey\_autounlock role\: add a systemd daemon\-reload handler to ensure newly installed/updated unit files are picked up by systemd\.
@@ -154,7 +164,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-2-1"></a>
 ## v0\.2\.1
 
-<a id="bugfixes-2"></a>
+<a id="bugfixes-3"></a>
 ### Bugfixes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Fix setting of Docker container labels\.
@@ -175,7 +185,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-1-1"></a>
 ## v0\.1\.1
 
-<a id="bugfixes-3"></a>
+<a id="bugfixes-4"></a>
 ### Bugfixes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Fixed an issue creating the data directory\.

@@ -1,5 +1,13 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-4-6"></a>
+## v0\.4\.6
+
+<a id="bugfixes"></a>
+### Bugfixes
+
+* zbm\_mint\_provision \- Fix stuff\.
+
 <a id="v0-4-5"></a>
 ## v0\.4\.5
 
@@ -22,7 +30,7 @@
 <a id="v0-4-2"></a>
 ## v0\.4\.2
 
-<a id="bugfixes"></a>
+<a id="bugfixes-1"></a>
 ### Bugfixes
 
 * zbm\_mint\_provision \- Fix fact setting\.
@@ -77,7 +85,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-3"></a>
 ## v0\.3\.3
 
-<a id="bugfixes-1"></a>
+<a id="bugfixes-2"></a>
 ### Bugfixes
 
 * zfs\_yubikey\_autounlock role\: add a systemd daemon\-reload handler to ensure newly installed/updated unit files are picked up by systemd\.
@@ -113,7 +121,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-2-1"></a>
 ## v0\.2\.1
 
-<a id="bugfixes-2"></a>
+<a id="bugfixes-3"></a>
 ### Bugfixes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Fix setting of Docker container labels\.
@@ -134,7 +142,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-1-1"></a>
 ## v0\.1\.1
 
-<a id="bugfixes-3"></a>
+<a id="bugfixes-4"></a>
 ### Bugfixes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Fixed an issue creating the data directory\.

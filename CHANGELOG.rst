@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.4.6
+======
+
+Bugfixes
+--------
+
+- zbm_mint_provision - Fix stuff.
+
 v0.4.5
 ======
 
