@@ -10,6 +10,12 @@
     name: [ debootstrap, gdisk, zfsutils-linux, curl ]
     update_cache: yes
 
+- name: Derive partition device paths
+  set_fact:
+    _part_sep: "{{ 'p' if (is_nvme | bool) else '' }}"
+    boot_part_device: "{{ boot_disk }}{{ _part_sep }}{{ boot_part_num }}"
+    pool_part_device: "{{ pool_disk }}{{ _part_sep }}{{ pool_part_num }}"
+
 - name: Generate HostID
   command: zgenhostid -f 0x00bab10c
   args:
@@ -39,7 +45,7 @@
     -O atime=off
     -O relatime=on
     -o autotrim=on
-    -m none {{ pool_name }} {{ pool_disk }}{{ pool_part_num }}
+    -m none {{ pool_name }} {{ pool_part_device }}
 
 - name: Create Datasets
   shell: |
@@ -109,9 +115,9 @@
 - name: Configure ZFSBootMenu (Chroot)
   shell: |
     chroot /mnt zfs set org.zfsbootmenu:commandline="quiet splash" {{ pool_name }}/ROOT
-    mkfs.vfat -F32 {{ boot_disk }}{{ boot_part_num }}
+    mkfs.vfat -F32 {{ boot_part_device }}
     mkdir -p /mnt/boot/efi
-    echo "UUID=$(blkid -s UUID -o value {{ boot_disk }}{{ boot_part_num }}) /boot/efi vfat defaults 0 0" >> /mnt/etc/fstab
+    echo "UUID=$(blkid -s UUID -o value {{ boot_part_device }}) /boot/efi vfat defaults 0 0" >> /mnt/etc/fstab
     mount /mnt/boot/efi
     mkdir -p /mnt/boot/efi/EFI/ZBM
     curl -o /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI -L https://get.zfsbootmenu.org/efi

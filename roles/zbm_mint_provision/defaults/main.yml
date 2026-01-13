@@ -4,7 +4,9 @@ boot_disk: "/dev/sda"
 boot_part_num: "1"
 pool_disk: "/dev/sda"
 pool_part_num: "2"
-is_nvme: false #TODO Insert "p" for nvme devices
+# If true, partition paths will be rendered as /dev/nvme0n1p1 (note the "p").
+# If false, partition paths will be rendered as /dev/sda1.
+is_nvme: false
 
 # ZFS Configuration
 pool_name: "zroot"
