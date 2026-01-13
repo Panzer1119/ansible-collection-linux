@@ -1,12 +1,20 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-4-5"></a>
+## v0\.4\.5
+
+<a id="minor-changes"></a>
+### Minor Changes
+
+* zbm\_mint\_provision \- Use proper modules instead of shell for zfs/zpool and mounting\.
+
 <a id="v0-4-4"></a>
 ## v0\.4\.4
 
 <a id="v0-4-3"></a>
 ## v0\.4\.3
 
-<a id="minor-changes"></a>
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Add APT Proxy support for LIVE ISO\.
@@ -22,7 +30,7 @@
 <a id="v0-4-1"></a>
 ## v0\.4\.1
 
-<a id="minor-changes-1"></a>
+<a id="minor-changes-2"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Add README\.md file\.
@@ -43,7 +51,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-10"></a>
 ## v0\.3\.10
 
-<a id="minor-changes-2"></a>
+<a id="minor-changes-3"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add optional <code>zfs\_yubikey\_serial</code> to pin ykman/ykchalresp to a specific YubiKey device when multiple are connected\.
@@ -77,7 +85,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-2"></a>
 ## v0\.3\.2
 
-<a id="minor-changes-3"></a>
+<a id="minor-changes-4"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock role\: change <code>zfs\_yubikey\_systemd\_before\_extra</code> default to a list \(still rendered space\-separated in the systemd unit\)\.
@@ -88,7 +96,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-1"></a>
 ## v0\.3\.1
 
-<a id="minor-changes-4"></a>
+<a id="minor-changes-5"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock role\: move Pushover notification settings to a dedicated top\-level dict \(<code>zfs\_yubikey\_autounlock\_pushover</code>\)\.
@@ -97,7 +105,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="minor-changes-5"></a>
+<a id="minor-changes-6"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add role to automatically unlock encrypted ZFS pools at boot using a pre\-programmed YubiKey \(HMAC\-SHA1 challenge\-response\)\, with optional Pushover notifications\.
@@ -118,7 +126,7 @@ Create the role zbm\_mint\_provision\.
 
 * set\_up\_docker\_registry\_mirror\_vm \- Remove orphaned containers\.
 
-<a id="minor-changes-6"></a>
+<a id="minor-changes-7"></a>
 ### Minor Changes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Add variable to disable usage of Let\'s Encrypt\.

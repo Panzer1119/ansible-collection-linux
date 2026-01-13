@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.4.5
+======
+
+Minor Changes
+-------------
+
+- zbm_mint_provision - Use proper modules instead of shell for zfs/zpool and mounting.
+
 v0.4.4
 ======
 

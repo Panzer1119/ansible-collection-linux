@@ -134,3 +134,11 @@ releases:
     release_date: '2026-01-13'
   0.4.4:
     release_date: '2026-01-13'
+  0.4.5:
+    changes:
+      minor_changes:
+        - zbm_mint_provision - Use proper modules instead of shell for zfs/zpool and
+          mounting.
+    fragments:
+      - 0.4.5.yml
+    release_date: '2026-01-13'
