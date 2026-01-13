@@ -2,6 +2,9 @@
 
 **Topics**
 
+- <a href="#v0-4-0">v0\.4\.0</a>
+    - <a href="#release-summary">Release Summary</a>
+    - <a href="#new-roles">New Roles</a>
 - <a href="#v0-3-10">v0\.3\.10</a>
     - <a href="#minor-changes">Minor Changes</a>
 - <a href="#v0-3-9">v0\.3\.9</a>
@@ -26,8 +29,21 @@
 - <a href="#v0-1-1">v0\.1\.1</a>
     - <a href="#bugfixes-2">Bugfixes</a>
 - <a href="#v0-1-0">v0\.1\.0</a>
-    - <a href="#release-summary">Release Summary</a>
-    - <a href="#new-roles">New Roles</a>
+    - <a href="#release-summary-1">Release Summary</a>
+    - <a href="#new-roles-1">New Roles</a>
+
+<a id="v0-4-0"></a>
+## v0\.4\.0
+
+<a id="release-summary"></a>
+### Release Summary
+
+Create the role zbm\_mint\_provision\.
+
+<a id="new-roles"></a>
+### New Roles
+
+* panzer1119\.linux\.zbm\_mint\_provision \- Sets up a Linux Mint system with ZBM\.
 
 <a id="v0-3-10"></a>
 ## v0\.3\.10
@@ -123,12 +139,12 @@
 <a id="v0-1-0"></a>
 ## v0\.1\.0
 
-<a id="release-summary"></a>
+<a id="release-summary-1"></a>
 ### Release Summary
 
 Create the role set\_up\_docker\_registry\_mirror\_vm\.
 
-<a id="new-roles"></a>
+<a id="new-roles-1"></a>
 ### New Roles
 
 * panzer1119\.linux\.set\_up\_docker\_registry\_mirror\_vm \- Sets up a Docker registry mirror VM on Proxmox VE\.

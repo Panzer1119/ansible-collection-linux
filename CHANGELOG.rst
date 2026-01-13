@@ -4,6 +4,19 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.4.0
+======
+
+Release Summary
+---------------
+
+Create the role zbm_mint_provision.
+
+New Roles
+---------
+
+- panzer1119.linux.zbm_mint_provision - Sets up a Linux Mint system with ZBM.
+
 v0.3.10
 =======
 

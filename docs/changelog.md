@@ -1,5 +1,18 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-4-0"></a>
+## v0\.4\.0
+
+<a id="release-summary"></a>
+### Release Summary
+
+Create the role zbm\_mint\_provision\.
+
+<a id="new-roles"></a>
+### New Roles
+
+* panzer1119\.linux\.zbm\_mint\_provision \- Sets up a Linux Mint system with ZBM\.
+
 <a id="v0-3-10"></a>
 ## v0\.3\.10
 
@@ -94,12 +107,12 @@
 <a id="v0-1-0"></a>
 ## v0\.1\.0
 
-<a id="release-summary"></a>
+<a id="release-summary-1"></a>
 ### Release Summary
 
 Create the role set\_up\_docker\_registry\_mirror\_vm\.
 
-<a id="new-roles"></a>
+<a id="new-roles-1"></a>
 ### New Roles
 
 * panzer1119\.linux\.set\_up\_docker\_registry\_mirror\_vm \- Sets up a Docker registry mirror VM on Proxmox VE\.
