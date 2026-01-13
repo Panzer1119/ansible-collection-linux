@@ -1,0 +1,6 @@
+---
+release_summary: Create the role zbm_mint_provision.
+add object.role:
+  - name: zbm_mint_provision
+    description: Sets up a Linux Mint system with ZBM.
+...
