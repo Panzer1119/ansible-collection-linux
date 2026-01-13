@@ -52,6 +52,7 @@
     pool_properties:
       ashift: "12"
       autotrim: "on"
+      bootfs: "{{ pool_name }}/ROOT/{{ zfs_id }} {{ pool_name }}"
     filesystem_properties:
       compression: "lz4"
       acltype: "posixacl"
@@ -63,12 +64,25 @@
       - disks:
           - "{{ pool_part_device }}"
 
-- name: Create Datasets
-  shell: |
-    zfs create -o mountpoint=none {{ pool_name }}/ROOT
-    zfs create -o mountpoint=/ -o canmount=noauto {{ pool_name }}/ROOT/{{ zfs_id }}
-    zfs create -o mountpoint=/home {{ pool_name }}/home
-    zpool set bootfs={{ pool_name }}/ROOT/{{ zfs_id }} {{ pool_name }}
+- name: Create Dataset ROOT
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "none"
+- name: Create Dataset ROOT/{{ zfs_id }}
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/"
+      canmount: "noauto"
+- name: Create Dataset home
+  community.general.zfs:
+    name: "{{ pool_name }}/home"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/home"
 
 - name: Export and Re-import Pool to /mnt
   shell: |
