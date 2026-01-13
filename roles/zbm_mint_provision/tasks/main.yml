@@ -164,15 +164,20 @@
     chroot /mnt apt install -y --no-install-recommends \
       mint-meta-core
 
+- name: Snapshot after Mint core installation
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-core-install"
+    state: present
+
 - name: Install Cinnamon desktop (Chroot)
   shell: |
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
       mint-meta-cinnamon
 
-- name: Snapshot after Mint installation
+- name: Snapshot after Mint cinnamon installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-install"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-cinnamon-install"
     state: present
 
 - name: Set Root Password (Chroot)
