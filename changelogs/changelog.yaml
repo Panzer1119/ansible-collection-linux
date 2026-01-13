@@ -159,3 +159,10 @@ releases:
     fragments:
       - 0.4.8.yml
     release_date: '2026-01-13'
+  0.4.9:
+    changes:
+      minor_changes:
+        - zbm_mint_provision - Change many things.
+    fragments:
+      - 0.4.9.yml
+    release_date: '2026-01-13'

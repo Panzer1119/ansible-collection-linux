@@ -2,25 +2,27 @@
 
 **Topics**
 
-- <a href="#v0-4-8">v0\.4\.8</a>
+- <a href="#v0-4-9">v0\.4\.9</a>
     - <a href="#minor-changes">Minor Changes</a>
+- <a href="#v0-4-8">v0\.4\.8</a>
+    - <a href="#minor-changes-1">Minor Changes</a>
 - <a href="#v0-4-7">v0\.4\.7</a>
 - <a href="#v0-4-6">v0\.4\.6</a>
     - <a href="#bugfixes">Bugfixes</a>
 - <a href="#v0-4-5">v0\.4\.5</a>
-    - <a href="#minor-changes-1">Minor Changes</a>
+    - <a href="#minor-changes-2">Minor Changes</a>
 - <a href="#v0-4-4">v0\.4\.4</a>
 - <a href="#v0-4-3">v0\.4\.3</a>
-    - <a href="#minor-changes-2">Minor Changes</a>
+    - <a href="#minor-changes-3">Minor Changes</a>
 - <a href="#v0-4-2">v0\.4\.2</a>
     - <a href="#bugfixes-1">Bugfixes</a>
 - <a href="#v0-4-1">v0\.4\.1</a>
-    - <a href="#minor-changes-3">Minor Changes</a>
+    - <a href="#minor-changes-4">Minor Changes</a>
 - <a href="#v0-4-0">v0\.4\.0</a>
     - <a href="#release-summary">Release Summary</a>
     - <a href="#new-roles">New Roles</a>
 - <a href="#v0-3-10">v0\.3\.10</a>
-    - <a href="#minor-changes-4">Minor Changes</a>
+    - <a href="#minor-changes-5">Minor Changes</a>
 - <a href="#v0-3-9">v0\.3\.9</a>
 - <a href="#v0-3-8">v0\.3\.8</a>
 - <a href="#v0-3-7">v0\.3\.7</a>
@@ -30,26 +32,34 @@
 - <a href="#v0-3-3">v0\.3\.3</a>
     - <a href="#bugfixes-2">Bugfixes</a>
 - <a href="#v0-3-2">v0\.3\.2</a>
-    - <a href="#minor-changes-5">Minor Changes</a>
-- <a href="#v0-3-1">v0\.3\.1</a>
     - <a href="#minor-changes-6">Minor Changes</a>
-- <a href="#v0-3-0">v0\.3\.0</a>
+- <a href="#v0-3-1">v0\.3\.1</a>
     - <a href="#minor-changes-7">Minor Changes</a>
+- <a href="#v0-3-0">v0\.3\.0</a>
+    - <a href="#minor-changes-8">Minor Changes</a>
 - <a href="#v0-2-1">v0\.2\.1</a>
     - <a href="#bugfixes-3">Bugfixes</a>
 - <a href="#v0-2-0">v0\.2\.0</a>
     - <a href="#major-changes">Major Changes</a>
-    - <a href="#minor-changes-8">Minor Changes</a>
+    - <a href="#minor-changes-9">Minor Changes</a>
 - <a href="#v0-1-1">v0\.1\.1</a>
     - <a href="#bugfixes-4">Bugfixes</a>
 - <a href="#v0-1-0">v0\.1\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
     - <a href="#new-roles-1">New Roles</a>
 
+<a id="v0-4-9"></a>
+## v0\.4\.9
+
+<a id="minor-changes"></a>
+### Minor Changes
+
+* zbm\_mint\_provision \- Change many things\.
+
 <a id="v0-4-8"></a>
 ## v0\.4\.8
 
-<a id="minor-changes"></a>
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Configure APT proxy before installing stuff in chroot\, and create zfs snapshots between installing mint core and cinnamon packages\.
@@ -68,7 +78,7 @@
 <a id="v0-4-5"></a>
 ## v0\.4\.5
 
-<a id="minor-changes-1"></a>
+<a id="minor-changes-2"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Use proper modules instead of shell for zfs/zpool and mounting\.
@@ -79,7 +89,7 @@
 <a id="v0-4-3"></a>
 ## v0\.4\.3
 
-<a id="minor-changes-2"></a>
+<a id="minor-changes-3"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Add APT Proxy support for LIVE ISO\.
@@ -95,7 +105,7 @@
 <a id="v0-4-1"></a>
 ## v0\.4\.1
 
-<a id="minor-changes-3"></a>
+<a id="minor-changes-4"></a>
 ### Minor Changes
 
 * zbm\_mint\_provision \- Add README\.md file\.
@@ -116,7 +126,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-10"></a>
 ## v0\.3\.10
 
-<a id="minor-changes-4"></a>
+<a id="minor-changes-5"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add optional <code>zfs\_yubikey\_serial</code> to pin ykman/ykchalresp to a specific YubiKey device when multiple are connected\.
@@ -150,7 +160,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-2"></a>
 ## v0\.3\.2
 
-<a id="minor-changes-5"></a>
+<a id="minor-changes-6"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock role\: change <code>zfs\_yubikey\_systemd\_before\_extra</code> default to a list \(still rendered space\-separated in the systemd unit\)\.
@@ -161,7 +171,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-1"></a>
 ## v0\.3\.1
 
-<a id="minor-changes-6"></a>
+<a id="minor-changes-7"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock role\: move Pushover notification settings to a dedicated top\-level dict \(<code>zfs\_yubikey\_autounlock\_pushover</code>\)\.
@@ -170,7 +180,7 @@ Create the role zbm\_mint\_provision\.
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="minor-changes-7"></a>
+<a id="minor-changes-8"></a>
 ### Minor Changes
 
 * zfs\_yubikey\_autounlock \- Add role to automatically unlock encrypted ZFS pools at boot using a pre\-programmed YubiKey \(HMAC\-SHA1 challenge\-response\)\, with optional Pushover notifications\.
@@ -191,7 +201,7 @@ Create the role zbm\_mint\_provision\.
 
 * set\_up\_docker\_registry\_mirror\_vm \- Remove orphaned containers\.
 
-<a id="minor-changes-8"></a>
+<a id="minor-changes-9"></a>
 ### Minor Changes
 
 * set\_up\_docker\_registry\_mirror\_vm \- Add variable to disable usage of Let\'s Encrypt\.
