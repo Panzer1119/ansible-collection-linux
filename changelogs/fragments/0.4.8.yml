@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - zbm_mint_provision - Configure APT proxy before installing stuff in chroot, and create zfs snapshots between installing mint core and cinnamon packages.
+...
