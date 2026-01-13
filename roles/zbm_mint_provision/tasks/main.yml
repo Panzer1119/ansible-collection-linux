@@ -141,6 +141,15 @@
     src: sources.list.j2
     dest: /mnt/etc/apt/sources.list
 
+- name: Configure APT proxy inside Chroot (optional)
+  template:
+    src: 90proxy.j2
+    dest: /mnt/etc/apt/apt.conf.d/90proxy
+    owner: root
+    group: root
+    mode: '0644'
+  when: apt_proxy | default('') | length > 0
+
 - name: Install base system packages (Chroot)
   shell: |
     chroot /mnt apt update
@@ -187,15 +196,6 @@
   shell: |
     chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
     chroot /mnt update-initramfs -c -k all
-
-- name: Configure APT proxy inside Chroot (optional)
-  template:
-    src: 90proxy.j2
-    dest: /mnt/etc/apt/apt.conf.d/90proxy
-    owner: root
-    group: root
-    mode: '0644'
-  when: apt_proxy | default('') | length > 0
 
 - name: Format EFI system partition
   ansible.builtin.filesystem:
