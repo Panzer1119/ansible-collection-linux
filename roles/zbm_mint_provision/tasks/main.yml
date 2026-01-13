@@ -227,6 +227,39 @@
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-23-install-lightdm"
     state: present
 
+- name: Install bloat packages (Chroot)
+  shell: |
+    chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      nemo \
+      xed \
+      xviewer \
+      xreader \
+      celluloid \
+      rhythmbox \
+      file-roller \
+      gnome-terminal \
+      gnome-system-monitor \
+      gnome-screenshot \
+      gnome-disk-utility \
+      gnome-calculator \
+      simple-scan \
+      firefox \
+      thunderbird \
+      vlc \
+      gimp \
+      libreoffice \
+      git \
+      eza \
+      iperf3 \
+      screen \
+      magic-wormhole
+
+- name: Snapshot after bloat installation
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-24-install-bloat"
+    state: present
+
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
 
