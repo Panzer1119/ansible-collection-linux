@@ -230,6 +230,22 @@
     fstype: efivarfs
     state: mounted
 
+- name: Create backup ZFSBootMenu EFI boot entry
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - efibootmgr
+      - -c
+      - -d
+      - "{{ boot_disk }}"
+      - -p
+      - "{{ boot_part_num }}"
+      - -L
+      - ZFSBootMenu
+      - -l
+      - '\EFI\ZBM\VMLINUZ-BACKUP.EFI'
+
 - name: Create ZFSBootMenu EFI boot entry
   ansible.builtin.command:
     argv:
