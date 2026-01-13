@@ -159,7 +159,7 @@
   shell: |
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
-      linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
+      linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr etckeeper
 
 - name: Snapshot before Mint installation
   community.general.zfs:
