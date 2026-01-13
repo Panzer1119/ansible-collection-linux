@@ -99,6 +99,11 @@
     zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
     zfs mount {{ pool_name }}/home
 
+- name: Snapshot before debootstrap
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-00-creation"
+    state: present
+
 - name: Bootstrap Ubuntu
   command: debootstrap {{ ubuntu_codename }} /mnt
   args:
@@ -106,7 +111,7 @@
 
 - name: Snapshot after debootstrap
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-debootstrap"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-10-debootstrap"
     state: present
 
 - name: Copy HostID and Resolv.conf
@@ -158,7 +163,7 @@
 
 - name: Snapshot before Mint installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-base-install"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-install-base"
     state: present
 
 - name: Install Mint Keyring (Chroot)
@@ -175,7 +180,7 @@
 
 - name: Snapshot after Mint core installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-core-install"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-core"
     state: present
 
 - name: Install Cinnamon desktop (Chroot)
@@ -186,7 +191,7 @@
 
 - name: Snapshot after Mint cinnamon installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-cinnamon-install"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-22-install-mint-cinnamon"
     state: present
 
 - name: Set Root Password (Chroot)
@@ -276,7 +281,7 @@
 
 - name: Snapshot before final export
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-provision"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-70-provision"
     state: present
 
 - name: Unmount EFI system partition
