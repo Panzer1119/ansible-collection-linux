@@ -112,6 +112,15 @@
     chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
     chroot /mnt update-initramfs -c -k all
 
+- name: Configure APT proxy inside Chroot (optional)
+  template:
+    src: 90proxy.j2
+    dest: /mnt/etc/apt/apt.conf.d/90proxy
+    owner: root
+    group: root
+    mode: '0644'
+  when: apt_proxy | default('') | length > 0
+
 - name: Configure ZFSBootMenu (Chroot)
   shell: |
     chroot /mnt zfs set org.zfsbootmenu:commandline="quiet splash" {{ pool_name }}/ROOT

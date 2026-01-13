@@ -8,6 +8,10 @@ pool_part_num: "2"
 # If false, partition paths will be rendered as /dev/sda1.
 is_nvme: false
 
+# Optional APT proxy URL (e.g. http://aptproxy.local:3142). When set, a proxy
+# config is written into the target system under /etc/apt/apt.conf.d/90proxy.
+apt_proxy: ""
+
 # ZFS Configuration
 pool_name: "zroot"
 zfs_id: "linuxmint"  # Used for the dataset name (zroot/ROOT/mint)
