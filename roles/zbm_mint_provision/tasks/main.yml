@@ -94,15 +94,29 @@
     src: sources.list.j2
     dest: /mnt/etc/apt/sources.list
 
-- name: Install Mint Keyring and Base System (Chroot)
+- name: Install base system packages (Chroot)
   shell: |
     chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
+
+- name: Install Mint Keyring (Chroot)
+  shell: |
     chroot /mnt apt install -y wget gnupg
     wget -qO /mnt/tmp/mintkey.deb {{ mint_keyring_url }}
     chroot /mnt dpkg -i /tmp/mintkey.deb
+
+- name: Install Mint base packages (Chroot)
+  shell: |
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
-      linux-generic mint-meta-core dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
+      mint-meta-core
+
+- name: Install Cinnamon desktop (Chroot)
+  shell: |
+    chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      mint-meta-cinnamon
 
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
