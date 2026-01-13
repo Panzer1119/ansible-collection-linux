@@ -1,5 +1,8 @@
 # Panzer1119 Linux Collection Release Notes
 
+<a id="v0-4-7"></a>
+## v0\.4\.7
+
 <a id="v0-4-6"></a>
 ## v0\.4\.6
 

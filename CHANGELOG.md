@@ -2,6 +2,7 @@
 
 **Topics**
 
+- <a href="#v0-4-7">v0\.4\.7</a>
 - <a href="#v0-4-6">v0\.4\.6</a>
     - <a href="#bugfixes">Bugfixes</a>
 - <a href="#v0-4-5">v0\.4\.5</a>
@@ -42,6 +43,9 @@
 - <a href="#v0-1-0">v0\.1\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
     - <a href="#new-roles-1">New Roles</a>
+
+<a id="v0-4-7"></a>
+## v0\.4\.7
 
 <a id="v0-4-6"></a>
 ## v0\.4\.6
