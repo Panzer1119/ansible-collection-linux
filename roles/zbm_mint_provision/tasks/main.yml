@@ -85,11 +85,12 @@
       mountpoint: "/home"
 
 - name: Set Pool bootfs property
-  community.general.zpool:
-    name: "{{ pool_name }}"
-    pool_properties:
-      bootfs: "{{ pool_name }}/ROOT/{{ zfs_id }}"
-    state: present
+  ansible.builtin.command:
+    argv:
+      - zpool
+      - set
+      - "bootfs={{ pool_name }}/ROOT/{{ zfs_id }}"
+      - "{{ pool_name }}"
 
 - name: Export and Re-import Pool to /mnt
   shell: |
