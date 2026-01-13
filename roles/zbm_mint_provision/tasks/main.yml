@@ -5,6 +5,15 @@
   register: efi_check
   failed_when: not efi_check.stat.exists
 
+- name: Configure APT proxy on Live ISO (optional)
+  template:
+    src: 90proxy.j2
+    dest: /etc/apt/apt.conf.d/90proxy
+    owner: root
+    group: root
+    mode: '0644'
+  when: apt_proxy | default('') | length > 0
+
 - name: Install provisioning tools on Live ISO
   apt:
     name: [ debootstrap, gdisk, zfsutils-linux, curl ]
