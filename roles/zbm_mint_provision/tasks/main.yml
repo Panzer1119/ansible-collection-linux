@@ -267,9 +267,32 @@
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@pre-export"
     state: present
 
-- name: Finalize and Export
-  shell: |
-    umount -l /mnt/boot/efi || true
-    umount -n -R /mnt
-    zpool export {{ pool_name }}
-...
+- name: Unmount EFI system partition
+  ansible.posix.mount:
+    path: /mnt/boot/efi
+    state: unmounted
+  ignore_errors: true
+
+- name: Unmount chroot filesystems
+  ansible.builtin.command:
+    argv:
+      - umount
+      - "-n"
+      - "-R"
+      - "/mnt"
+#  ansible.posix.mount:
+#    path: "{{ item }}"
+#    state: unmounted
+#  loop:
+#    - /mnt/dev/pts
+#    - /mnt/dev
+#    - /mnt/proc
+#    - /mnt/sys
+#    - /mnt
+
+- name: Export ZFS pool
+  ansible.builtin.command:
+    argv:
+      - zpool
+      - export
+      - "{{ pool_name }}"
