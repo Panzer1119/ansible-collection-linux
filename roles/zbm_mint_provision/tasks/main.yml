@@ -176,7 +176,7 @@
   shell: |
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
-      mint-meta-core
+      mint-info-cinnamon mint-meta-core
 
 - name: Copy Mint apt preferences (Chroot)
   copy:
