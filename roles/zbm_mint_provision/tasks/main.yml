@@ -12,9 +12,8 @@
 
 - name: Derive partition device paths
   set_fact:
-    _part_sep: "{{ 'p' if (is_nvme | bool) else '' }}"
-    boot_part_device: "{{ boot_disk }}{{ _part_sep }}{{ boot_part_num }}"
-    pool_part_device: "{{ pool_disk }}{{ _part_sep }}{{ pool_part_num }}"
+    boot_part_device: "{{ boot_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ boot_part_num }}"
+    pool_part_device: "{{ pool_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ pool_part_num }}"
 
 - name: Generate HostID
   command: zgenhostid -f 0x00bab10c
