@@ -45,15 +45,23 @@
     sgdisk -n {{ pool_part_num }}:0:-10m -t {{ pool_part_num }}:bf00 {{ pool_disk }}
 
 - name: Create ZFS Pool
-  command: >
-    zpool create -f -o ashift=12
-    -O compression=lz4
-    -O acltype=posixacl
-    -O xattr=sa
-    -O atime=off
-    -O relatime=on
-    -o autotrim=on
-    -m none {{ pool_name }} {{ pool_part_device }}
+  community.general.zpool:
+    name: "{{ pool_name }}"
+    mountpoint: "none"
+    force: true
+    pool_properties:
+      ashift: "12"
+      autotrim: "on"
+    filesystem_properties:
+      compression: "lz4"
+      acltype: "posixacl"
+      xattr: "sa"
+      atime: "off"
+      relatime: "on"
+    state: present
+    vdevs:
+      - disks:
+          - "{{ pool_part_device }}"
 
 - name: Create Datasets
   shell: |
