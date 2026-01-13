@@ -158,7 +158,7 @@
 
 - name: Snapshot before Mint installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@pre-mint-install"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-base-install"
     state: present
 
 - name: Install Mint Keyring (Chroot)
