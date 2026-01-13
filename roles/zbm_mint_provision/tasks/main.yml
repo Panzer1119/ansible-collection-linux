@@ -52,7 +52,6 @@
     pool_properties:
       ashift: "12"
       autotrim: "on"
-      bootfs: "{{ pool_name }}/ROOT/{{ zfs_id }} {{ pool_name }}"
     filesystem_properties:
       compression: "lz4"
       acltype: "posixacl"
@@ -84,6 +83,13 @@
     state: present
     extra_zfs_properties:
       mountpoint: "/home"
+
+- name: Set Pool bootfs property
+  community.general.zpool:
+    name: "{{ pool_name }}"
+    pool_properties:
+      bootfs: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+    state: present
 
 - name: Export and Re-import Pool to /mnt
   shell: |
