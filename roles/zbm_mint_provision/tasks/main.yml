@@ -1,0 +1,130 @@
+---
+- name: Ensure we are in UEFI mode
+  stat:
+    path: /sys/firmware/efi/efivars
+  register: efi_check
+  failed_when: not efi_check.stat.exists
+
+- name: Install provisioning tools on Live ISO
+  apt:
+    name: [ debootstrap, gdisk, zfsutils-linux, curl ]
+    update_cache: yes
+
+- name: Generate HostID
+  command: zgenhostid -f 0x00bab10c
+  args:
+    creates: /etc/hostid
+
+- name: Prepare Disks (Wipe)
+  shell: |
+    zpool labelclear -f {{ pool_disk }} || true
+    wipefs -a {{ pool_disk }}
+    sgdisk --zap-all {{ pool_disk }}
+    {% if boot_disk != pool_disk %}
+    wipefs -a {{ boot_disk }}
+    sgdisk --zap-all {{ boot_disk }}
+    {% endif %}
+
+- name: Create Partitions
+  shell: |
+    sgdisk -n {{ boot_part_num }}:1m:+512m -t {{ boot_part_num }}:ef00 {{ boot_disk }}
+    sgdisk -n {{ pool_part_num }}:0:-10m -t {{ pool_part_num }}:bf00 {{ pool_disk }}
+
+- name: Create ZFS Pool
+  command: >
+    zpool create -f -o ashift=12
+    -O compression=lz4
+    -O acltype=posixacl
+    -O xattr=sa
+    -O atime=off
+    -O relatime=on
+    -o autotrim=on
+    -m none {{ pool_name }} {{ pool_disk }}{{ pool_part_num }}
+
+- name: Create Datasets
+  shell: |
+    zfs create -o mountpoint=none {{ pool_name }}/ROOT
+    zfs create -o mountpoint=/ -o canmount=noauto {{ pool_name }}/ROOT/{{ zfs_id }}
+    zfs create -o mountpoint=/home {{ pool_name }}/home
+    zpool set bootfs={{ pool_name }}/ROOT/{{ zfs_id }} {{ pool_name }}
+
+- name: Export and Re-import Pool to /mnt
+  shell: |
+    zpool export {{ pool_name }}
+    zpool import -N -R /mnt {{ pool_name }}
+    zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
+    zfs mount {{ pool_name }}/home
+
+- name: Bootstrap Ubuntu
+  command: debootstrap {{ ubuntu_codename }} /mnt
+  args:
+    creates: /mnt/bin/bash
+
+- name: Copy HostID and Resolv.conf
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: '/etc/hostid', dest: '/mnt/etc/hostid' }
+    - { src: '/etc/resolv.conf', dest: '/mnt/etc/resolv.conf' }
+
+- name: Mount Virtual Filesystems for Chroot
+  shell: |
+    mount -t proc proc /mnt/proc
+    mount -t sysfs sys /mnt/sys
+    mount -B /dev /mnt/dev
+    mount -t devpts pts /mnt/dev/pts
+  args:
+    warn: false
+
+- name: Configure Hostname inside Chroot
+  shell: |
+    echo '{{ hostname }}' > /mnt/etc/hostname
+    echo -e '127.0.1.1\t{{ hostname }}' >> /mnt/etc/hosts
+
+- name: Configure APT Sources for Mint
+  template:
+    src: sources.list.j2
+    dest: /mnt/etc/apt/sources.list
+
+- name: Install Mint Keyring and Base System (Chroot)
+  shell: |
+    chroot /mnt apt update
+    chroot /mnt apt install -y wget gnupg
+    wget -qO /mnt/tmp/mintkey.deb {{ mint_keyring_url }}
+    chroot /mnt dpkg -i /tmp/mintkey.deb
+    chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      linux-generic mint-meta-core dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
+
+- name: Set Root Password (Chroot)
+  shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
+
+- name: Enable ZFS Services (Chroot)
+  shell: |
+    chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
+    chroot /mnt update-initramfs -c -k all
+
+- name: Configure ZFSBootMenu (Chroot)
+  shell: |
+    chroot /mnt zfs set org.zfsbootmenu:commandline="quiet splash" {{ pool_name }}/ROOT
+    mkfs.vfat -F32 {{ boot_disk }}{{ boot_part_num }}
+    mkdir -p /mnt/boot/efi
+    echo "UUID=$(blkid -s UUID -o value {{ boot_disk }}{{ boot_part_num }}) /boot/efi vfat defaults 0 0" >> /mnt/etc/fstab
+    mount /mnt/boot/efi
+    mkdir -p /mnt/boot/efi/EFI/ZBM
+    curl -o /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI -L https://get.zfsbootmenu.org/efi
+    cp /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI /mnt/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI
+
+- name: Setup EFI Boot Entry (Chroot)
+  shell: |
+    mount -t efivarfs efivarfs /mnt/sys/firmware/efi/efivars || true
+    chroot /mnt efibootmgr -c -d {{ boot_disk }} -p {{ boot_part_num }} -L "ZFSBootMenu" -l '\EFI\ZBM\VMLINUZ.EFI'
+
+- name: Finalize and Export
+  shell: |
+    umount -l /mnt/boot/efi || true
+    umount -n -R /mnt
+    zpool export {{ pool_name }}
+...

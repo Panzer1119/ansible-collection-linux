@@ -1,0 +1,22 @@
+---
+# Disk Configuration
+boot_disk: "/dev/sda"
+boot_part_num: "1"
+pool_disk: "/dev/sda"
+pool_part_num: "2"
+is_nvme: false #TODO Insert "p" for nvme devices
+
+# ZFS Configuration
+pool_name: "zroot"
+zfs_id: "linuxmint"  # Used for the dataset name (zroot/ROOT/mint)
+
+# System Configuration
+hostname: "linux-mint-zbm-test-vm"
+root_password: "password" # Use a hashed password in production
+timezone: "Europe/Berlin"
+
+# OS Versions
+ubuntu_codename: "noble"
+mint_codename: "zara"
+mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
+...

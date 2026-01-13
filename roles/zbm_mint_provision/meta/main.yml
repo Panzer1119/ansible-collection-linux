@@ -1,0 +1,14 @@
+galaxy_info:
+  author: Paul Hagedorn <panzer1119@gmail.com>
+  description: Sets up a Linux Mint system with ZFS Boot Menu.
+  license: Apache-2.0
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Mint
+      versions:
+        - all
+  galaxy_tags:
+    - linux
+    - ansible
+    - zfs
+...
