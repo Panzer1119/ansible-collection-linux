@@ -4,6 +4,14 @@ Panzer1119 Linux Collection Release Notes
 
 .. contents:: Topics
 
+v0.4.8
+======
+
+Minor Changes
+-------------
+
+- zbm_mint_provision - Configure APT proxy before installing stuff in chroot, and create zfs snapshots between installing mint core and cinnamon packages.
+
 v0.4.7
 ======
 

@@ -151,3 +151,11 @@ releases:
     release_date: '2026-01-13'
   0.4.7:
     release_date: '2026-01-13'
+  0.4.8:
+    changes:
+      minor_changes:
+        - zbm_mint_provision - Configure APT proxy before installing stuff in chroot,
+          and create zfs snapshots between installing mint core and cinnamon packages.
+    fragments:
+      - 0.4.8.yml
+    release_date: '2026-01-13'
