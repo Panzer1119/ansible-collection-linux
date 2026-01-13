@@ -110,14 +110,18 @@
     - { src: '/etc/hostid', dest: '/mnt/etc/hostid' }
     - { src: '/etc/resolv.conf', dest: '/mnt/etc/resolv.conf' }
 
-- name: Mount Virtual Filesystems for Chroot
-  shell: |
-    mount -t proc proc /mnt/proc
-    mount -t sysfs sys /mnt/sys
-    mount -B /dev /mnt/dev
-    mount -t devpts pts /mnt/dev/pts
-  args:
-    warn: false
+- name: Mount virtual filesystems for chroot
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    fstype: "{{ item.fstype }}"
+    opts: "{{ item.opts | default(omit) }}"
+    state: mounted
+  loop:
+    - { path: /mnt/proc,     src: proc, fstype: proc }
+    - { path: /mnt/sys,      src: sys,  fstype: sysfs }
+    - { path: /mnt/dev,      src: /dev, fstype: none, opts: bind }
+    - { path: /mnt/dev/pts,  src: pts,  fstype: devpts }
 
 - name: Configure Hostname inside Chroot
   shell: |
