@@ -230,6 +230,12 @@
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
 
+- name: Create default user (Chroot)
+  shell: |
+    chroot /mnt useradd -m -s /bin/bash -G sudo {{ default_user_name }}
+    chroot /mnt /bin/bash -c "echo '{{ default_user_name }}:{{ default_user_password }}' | chpasswd"
+    chroot /mnt usermod -aG sudo,adm,cdrom,dip,plugdev,lpadmin,video,audio,render,input,netdev {{ default_user_name }}
+
 - name: Enable ZFS Services (Chroot)
   shell: |
     chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target

@@ -19,6 +19,8 @@ zfs_id: "linuxmint"  # Used for the dataset name (zroot/ROOT/mint)
 # System Configuration
 hostname: "linux-mint-zbm-test-vm"
 root_password: "password" # Use a hashed password in production
+default_user_name: "panzer1119"
+default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
 
 # OS Versions
