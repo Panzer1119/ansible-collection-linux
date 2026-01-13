@@ -176,7 +176,7 @@
   shell: |
     chroot /mnt apt update
     chroot /mnt apt install -y --no-install-recommends \
-      mint-info-cinnamon mint-meta-core
+      mint-info-cinnamon mint-meta-core mint-meta-codecs
 
 - name: Copy Mint apt preferences (Chroot)
   copy:
@@ -199,9 +199,9 @@
       - --no-install-recommends
       - "base-files={{ mint_base_files_version }}"
 
-- name: Snapshot after Mint core installation
+- name: Snapshot after Mint base installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-core"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-base"
     state: present
 
 - name: Install Cinnamon desktop (Chroot)
