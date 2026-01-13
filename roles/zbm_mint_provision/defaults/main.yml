@@ -24,5 +24,6 @@ timezone: "Europe/Berlin"
 # OS Versions
 ubuntu_codename: "noble"
 mint_codename: "zara"
+mint_version: "22.2.0"
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
 ...
