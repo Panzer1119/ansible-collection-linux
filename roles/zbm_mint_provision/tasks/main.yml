@@ -276,7 +276,7 @@
 
 - name: Snapshot before final export
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@pre-export"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-provisioning"
     state: present
 
 - name: Unmount EFI system partition
