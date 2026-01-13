@@ -183,6 +183,7 @@
     src: /mnt/usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref
     dest: /mnt/etc/apt/preferences.d
     mode: '0644'
+    remote_src: true
 
 - name: Derive mint base-files version (ubuntu + mint version)
   set_fact:
