@@ -75,7 +75,9 @@
     creates: /mnt/bin/bash
 
 - name: Snapshot after debootstrap
-  command: zfs snapshot -r {{ pool_name }}/ROOT@post-debootstrap
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-debootstrap"
+    state: present
 
 - name: Copy HostID and Resolv.conf
   copy:
@@ -112,7 +114,9 @@
       linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr
 
 - name: Snapshot before Mint installation
-  command: zfs snapshot -r {{ pool_name }}/ROOT@pre-mint-install
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@pre-mint-install"
+    state: present
 
 - name: Install Mint Keyring (Chroot)
   shell: |
@@ -133,7 +137,9 @@
       mint-meta-cinnamon
 
 - name: Snapshot after Mint installation
-  command: zfs snapshot -r {{ pool_name }}/ROOT@post-mint-install
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-mint-install"
+    state: present
 
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
@@ -169,7 +175,9 @@
     chroot /mnt efibootmgr -c -d {{ boot_disk }} -p {{ boot_part_num }} -L "ZFSBootMenu" -l '\EFI\ZBM\VMLINUZ.EFI'
 
 - name: Snapshot before final export
-  command: zfs snapshot -r {{ pool_name }}/ROOT@pre-export
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@pre-export"
+    state: present
 
 - name: Finalize and Export
   shell: |
