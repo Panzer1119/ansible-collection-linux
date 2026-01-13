@@ -194,6 +194,18 @@
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-22-install-mint-cinnamon"
     state: present
 
+- name: Install display manager and switch (Chroot)
+  shell: |
+    chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      lightdm
+    chroot /mnt dpkg-reconfigure lightdm
+
+- name: Snapshot after lightdm installation
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-23-install-lightdm"
+    state: present
+
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
 
