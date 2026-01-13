@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - zbm_mint_provision - Use proper modules instead of shell for zfs/zpool and mounting.
+...
