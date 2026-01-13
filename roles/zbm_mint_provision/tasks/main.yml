@@ -70,6 +70,7 @@
     state: present
     extra_zfs_properties:
       mountpoint: "none"
+      "org.zfsbootmenu:commandline": "quiet splash"
 - name: Create Dataset ROOT/{{ zfs_id }}
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}"
@@ -184,16 +185,43 @@
     mode: '0644'
   when: apt_proxy | default('') | length > 0
 
-- name: Configure ZFSBootMenu (Chroot)
-  shell: |
-    chroot /mnt zfs set org.zfsbootmenu:commandline="quiet splash" {{ pool_name }}/ROOT
-    mkfs.vfat -F32 {{ boot_part_device }}
-    mkdir -p /mnt/boot/efi
-    echo "UUID=$(blkid -s UUID -o value {{ boot_part_device }}) /boot/efi vfat defaults 0 0" >> /mnt/etc/fstab
-    mount /mnt/boot/efi
-    mkdir -p /mnt/boot/efi/EFI/ZBM
-    curl -o /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI -L https://get.zfsbootmenu.org/efi
-    cp /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI /mnt/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI
+- name: Format EFI system partition
+  ansible.builtin.filesystem:
+    fstype: vfat
+    dev: "{{ boot_part_device }}"
+    opts: "-F32"
+
+- name: Ensure EFI mount directory exists
+  ansible.builtin.file:
+    path: /mnt/boot/efi
+    state: directory
+
+- name: Mount EFI system partition in chroot
+  ansible.posix.mount:
+    path: /mnt/boot/efi
+    src: "{{ boot_part_device }}"
+    fstype: vfat
+    opts: defaults
+    state: mounted
+    fstab: /mnt/etc/fstab
+    #TODO Does this use the UUID automatically?
+
+- name: Create ZFSBootMenu EFI directory
+  ansible.builtin.file:
+    path: /mnt/boot/efi/EFI/ZBM
+    state: directory
+
+- name: Download ZFSBootMenu EFI binary
+  ansible.builtin.get_url:
+    url: https://get.zfsbootmenu.org/efi
+    dest: /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI
+    mode: '0644'
+
+- name: Create backup ZFSBootMenu EFI binary
+  ansible.builtin.copy:
+    src: /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI
+    dest: /mnt/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI
+    remote_src: true
 
 - name: Setup EFI Boot Entry (Chroot)
   shell: |
