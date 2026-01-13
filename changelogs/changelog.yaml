@@ -118,3 +118,10 @@ releases:
     fragments:
       - 0.4.1.yml
     release_date: '2026-01-13'
+  0.4.2:
+    changes:
+      bugfixes:
+        - zbm_mint_provision - Fix fact setting.
+    fragments:
+      - 0.4.2.yml
+    release_date: '2026-01-13'
