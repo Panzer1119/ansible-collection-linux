@@ -85,6 +85,7 @@
     zpool import -N -R {{ chroot_path }} {{ pool_name }}
     zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
     zfs mount {{ pool_name }}/home
+  when: not zfs_pool_exists
 
 - name: Update device symlinks
   ansible.builtin.command:
