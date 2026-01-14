@@ -37,32 +37,6 @@
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-00-creation"
     state: present
 
-- name: List snapshots of {{ pool_name }}/ROOT/{{ zfs_id }}
-  ansible.builtin.command:
-    argv:
-      - zfs
-      - list
-      - -t
-      - snapshot
-      - -o
-      - name
-      - -H
-      - -r
-      - "{{ pool_name }}/ROOT/{{ zfs_id }}"
-  register: zfs_snapshot_list
-  changed_when: "false"
-  failed_when: "false"
-
-- name: Extract snapshot short names into a list
-  ansible.builtin.set_fact:
-    zfs_snapshots: >-
-      {{
-        zfs_snapshot_list.stdout_lines
-        | default([])
-        | map('regex_replace', '^.*@', '')
-        | list
-      }}
-
 - name: Bootstrap Ubuntu
   ansible.builtin.import_tasks: install_debootstrap.yml
   when: installation_method == 'debootstrap' and (("post-10-initial-" ~ installation_method) not in zfs_snapshots)

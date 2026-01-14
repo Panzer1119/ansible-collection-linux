@@ -50,6 +50,32 @@
           - "{{ pool_part_device }}"
   when: not zfs_pool_exists
 
+- name: List snapshots of {{ pool_name }}/ROOT/{{ zfs_id }}
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - list
+      - -t
+      - snapshot
+      - -o
+      - name
+      - -H
+      - -r
+      - "{{ pool_name }}/ROOT/{{ zfs_id }}"
+  register: zfs_snapshot_list
+  changed_when: "false"
+  failed_when: "false"
+
+- name: Extract snapshot short names into a list
+  ansible.builtin.set_fact:
+    zfs_snapshots: >-
+      {{
+        zfs_snapshot_list.stdout_lines
+        | default([])
+        | map('regex_replace', '^.*@', '')
+        | list
+      }}
+
 - name: Create Dataset ROOT
   community.general.zfs:
     name: "{{ pool_name }}/ROOT"
@@ -57,6 +83,8 @@
     extra_zfs_properties:
       mountpoint: "none"
       "org.zfsbootmenu:commandline": "quiet splash"
+  when: '"post-00-creation" not in zfs_snapshots'
+
 - name: Create Dataset ROOT/{{ zfs_id }}
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}"
@@ -64,12 +92,15 @@
     extra_zfs_properties:
       mountpoint: "/"
       canmount: "noauto"
+  when: '"post-00-creation" not in zfs_snapshots'
+
 - name: Create Dataset home
   community.general.zfs:
     name: "{{ pool_name }}/home"
     state: present
     extra_zfs_properties:
       mountpoint: "/home"
+  when: '"post-00-creation" not in zfs_snapshots'
 
 - name: Set Pool bootfs property
   ansible.builtin.command:
@@ -85,7 +116,7 @@
     zpool import -N -R {{ chroot_path }} {{ pool_name }}
     zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
     zfs mount {{ pool_name }}/home
-  when: not zfs_pool_exists
+  when: not zfs_pool_exists and "post-00-creation" not in zfs_snapshots
 
 - name: Update device symlinks
   ansible.builtin.command:
