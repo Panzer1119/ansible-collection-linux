@@ -14,6 +14,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-20-install-base" not in zfs_snapshots
 
 - name: Snapshot after base installation
   community.general.zfs:
@@ -31,6 +32,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 - name: (Chroot) Download Mint keyring
   ansible.builtin.get_url:
@@ -39,12 +41,14 @@
     mode: "0644"
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 - name: (Chroot) Install Mint keyring package
   ansible.builtin.apt:
     deb: /tmp/mintkey.deb
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 # ------------------------------------------------------------
 
@@ -59,6 +63,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 - name: (Chroot) Copy Mint apt preferences
   ansible.builtin.copy:
@@ -68,6 +73,7 @@
     remote_src: true
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 - name: Derive mint base-files version (ubuntu + mint version)
   ansible.builtin.set_fact:
@@ -81,6 +87,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-21-install-mint-base" not in zfs_snapshots
 
 - name: Snapshot after Mint base installation
   community.general.zfs:
@@ -98,6 +105,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-22-install-mint-cinnamon" not in zfs_snapshots
 
 - name: Snapshot after Mint cinnamon installation
   community.general.zfs:
@@ -114,6 +122,7 @@
     vtype: select
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-23-install-lightdm" not in zfs_snapshots
 
 - name: (Chroot) Install LightDM
   ansible.builtin.apt:
@@ -124,6 +133,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-23-install-lightdm" not in zfs_snapshots
 
 - name: Snapshot after lightdm installation
   community.general.zfs:
@@ -163,6 +173,7 @@
     state: present
   delegate_to: "{{ chroot_name }}"
   become: true
+  when: "post-24-install-bloat" not in zfs_snapshots
 
 - name: Snapshot after bloat installation
   community.general.zfs:
