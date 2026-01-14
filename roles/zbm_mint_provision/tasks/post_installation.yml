@@ -30,6 +30,7 @@
 
 - name: (Chroot) DPKG Reconfigure
   ansible.builtin.import_tasks: dpkg_reconfigure.yml
+  when: not skip_dpkg_reconfigure
 
 - name: (Chroot) Enable ZFS systemd units
   ansible.builtin.systemd:

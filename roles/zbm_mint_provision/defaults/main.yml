@@ -22,6 +22,7 @@ root_password: "password" # Use a hashed password in production
 default_user_name: "panzer1119"
 default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
+skip_dpkg_reconfigure: true
 
 # OS Versions
 ubuntu_codename: "noble"
