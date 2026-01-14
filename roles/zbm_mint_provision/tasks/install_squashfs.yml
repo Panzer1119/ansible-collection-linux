@@ -48,21 +48,22 @@
     mode: '0755'
 
 - name: Mirror live system into target root using rsync
-  ansible.builtin.command: #TODO Is there a module for this?
-    argv:
-      - rsync
-      - -aHAX
-      - --numeric-ids
-      - --info=progress2
-      - --delete
-      - --exclude=/dev/*
-      - --exclude=/proc/*
-      - --exclude=/sys/*
-      - --exclude=/run/*
-      - --exclude=/tmp/*
-      - --exclude=/mnt/*
-      - --exclude=/media/*
-      - --exclude=/lost+found
-      - /run/mint_squashfs/
-      - "{{ chroot_path }}"
+  ansible.posix.synchronize:
+    src: /run/mint_squashfs/
+    dest: "{{ chroot_path }}/"
+    archive: true
+    delete: true
+    compress: false
+    rsync_opts:
+      - "-HAX"
+      - "--numeric-ids"
+      - "--info=progress2"
+      - "--exclude=/dev/*"
+      - "--exclude=/proc/*"
+      - "--exclude=/sys/*"
+      - "--exclude=/run/*"
+      - "--exclude=/tmp/*"
+      - "--exclude=/mnt/*"
+      - "--exclude=/media/*"
+      - "--exclude=/lost+found"
 ...
