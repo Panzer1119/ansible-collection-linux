@@ -50,7 +50,7 @@
           - "{{ pool_part_device }}"
   when: not zfs_pool_exists
 
-- name: List snapshots of {{ pool_name }}/ROOT/{{ zfs_id }}
+- name: List snapshots of {{ pool_name }}/ROOT/{{ zfs_boot_environment | default(zfs_id) }}
   ansible.builtin.command:
     argv:
       - zfs
@@ -61,7 +61,7 @@
       - name
       - -H
       - -r
-      - "{{ pool_name }}/ROOT/{{ zfs_id }}"
+      - "{{ pool_name }}/ROOT/{{ zfs_boot_environment | default(zfs_id) }}"
   register: zfs_snapshot_list
   changed_when: "false"
   failed_when: "false"
@@ -83,40 +83,170 @@
     extra_zfs_properties:
       mountpoint: "none"
       "org.zfsbootmenu:commandline": "quiet splash"
-  when: '"post-00-creation" not in zfs_snapshots'
 
-- name: Create Dataset ROOT/{{ zfs_id }}
+- name: Create boot environment dataset ROOT/{{ zfs_boot_environment | default(zfs_id) }}
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+    name: "{{ pool_name }}/ROOT/{{ zfs_boot_environment | default(zfs_id) }}"
     state: present
     extra_zfs_properties:
       mountpoint: "/"
       canmount: "noauto"
-  when: '"post-00-creation" not in zfs_snapshots'
 
-- name: Create Dataset home
+- name: Build ZFS dataset plan (Ubuntu-installer-inspired)
+  ansible.builtin.set_fact:
+    zfs_dataset_plan: >-
+      {{
+        [
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/srv',
+            'mountpoint': '/srv',
+            'enabled': (zfs_dataset_layout.create_srv | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/usr',
+            'mountpoint': '/usr',
+            'canmount': 'off',
+            'enabled': (zfs_dataset_layout.separate_usr_local | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/usr/local',
+            'mountpoint': '/usr/local',
+            'enabled': (zfs_dataset_layout.separate_usr_local | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var',
+            'mountpoint': '/var',
+            'canmount': 'off',
+            'enabled': (zfs_dataset_layout.create_var_tree | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/log',
+            'mountpoint': '/var/log',
+            'enabled': (zfs_dataset_layout.create_var_tree | default(true)) and (zfs_dataset_layout.separate_var_log | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/cache',
+            'mountpoint': '/var/cache',
+            'enabled': (zfs_dataset_layout.create_var_tree | default(true)) and (zfs_dataset_layout.separate_var_cache | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/tmp',
+            'mountpoint': '/var/tmp',
+            'enabled': (zfs_dataset_layout.create_var_tree | default(true)) and (zfs_dataset_layout.separate_var_tmp | default(true))
+          },
+          {
+            'name': pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/lib',
+            'mountpoint': '/var/lib',
+            'enabled': (zfs_dataset_layout.create_var_tree | default(true)) and (zfs_dataset_layout.separate_var_lib | default(true))
+          }
+        ]
+        +
+        (
+          (
+            (zfs_dataset_layout.var_lib_subdatasets | default([]))
+            | map('regex_replace', '^(.*)$', pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/lib/\\1')
+            | list
+            | map('community.general.dict_kv', 'name')
+            | list
+          )
+          | map('combine', {'enabled': (zfs_dataset_layout.create_var_tree | default(true)) and (zfs_dataset_layout.separate_var_lib | default(true))})
+          | list
+          | map('combine', {'mountpoint': None})
+          | list
+        )
+        +
+        (
+          (
+            (zfs_dataset_layout.extra_var_subdatasets | default([]))
+            | map('regex_replace', '^(.*)$', pool_name ~ '/ROOT/' ~ (zfs_boot_environment | default(zfs_id)) ~ '/var/\\1')
+            | list
+            | map('community.general.dict_kv', 'name')
+            | list
+          )
+          | map('combine', {'enabled': (zfs_dataset_layout.create_var_tree | default(true))})
+          | list
+          | map('combine', {'mountpoint': None})
+          | list
+        )
+      }}
+
+- name: Ensure planned datasets exist (containers and leaf datasets)
+  community.general.zfs:
+    name: "{{ item.name }}"
+    state: present
+    extra_zfs_properties: >-
+      {{
+        dict(
+          ( {'mountpoint': item.mountpoint} if (item.mountpoint is defined and item.mountpoint is not none) else {} ),
+          ( {'canmount': item.canmount} if (item.canmount is defined) else {} )
+        )
+      }}
+  loop: "{{ zfs_dataset_plan }}"
+  when: item.enabled | default(true)
+
+- name: Create legacy home dataset ({{ pool_name }}/home)
   community.general.zfs:
     name: "{{ pool_name }}/home"
     state: present
     extra_zfs_properties:
       mountpoint: "/home"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: zfs_legacy_home_dataset | default(true)
+
+- name: Ensure USERDATA container exists (optional)
+  community.general.zfs:
+    name: "{{ pool_name }}/USERDATA"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "none"
+  when: zfs_use_userdata_container | default(false)
+
+- name: Create /root dataset (optional, under USERDATA)
+  community.general.zfs:
+    name: "{{ pool_name }}/USERDATA/root"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/root"
+  when: zfs_use_userdata_container | default(false)
+
+- name: Create /home parent dataset (optional, under USERDATA)
+  community.general.zfs:
+    name: "{{ pool_name }}/USERDATA/home"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/home"
+  when: zfs_use_userdata_container | default(false) and (not (zfs_legacy_home_dataset | default(true)))
+
+- name: Create per-user home datasets (optional)
+  community.general.zfs:
+    name: "{{ pool_name }}/USERDATA/{{ item.name }}"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/home/{{ item.name }}"
+  loop: "{{ zfs_users | default([]) }}"
+  when:
+    - zfs_use_userdata_container | default(false)
+    - zfs_per_user_home_datasets | default(false)
 
 - name: Set Pool bootfs property
   ansible.builtin.command:
     argv:
       - zpool
       - set
-      - "bootfs={{ pool_name }}/ROOT/{{ zfs_id }}"
+      - "bootfs={{ pool_name }}/ROOT/{{ zfs_boot_environment | default(zfs_id) }}"
       - "{{ pool_name }}"
 
 - name: Export and Re-import Pool to {{ chroot_path }}
   shell: |
     zpool export {{ pool_name }}
     zpool import -N -R {{ chroot_path }} {{ pool_name }}
-    zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
+    zfs mount {{ pool_name }}/ROOT/{{ zfs_boot_environment | default(zfs_id) }}
+    {% if zfs_legacy_home_dataset | default(true) %}
     zfs mount {{ pool_name }}/home
-  when: not zfs_pool_exists and "post-00-creation" not in zfs_snapshots
+    {% else %}
+    # When using USERDATA, mount everything that has a mountpoint.
+    zfs mount -a
+    {% endif %}
+  when: not zfs_pool_exists
 
 - name: Update device symlinks
   ansible.builtin.command:

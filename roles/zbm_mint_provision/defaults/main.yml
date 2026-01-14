@@ -14,7 +14,49 @@ apt_proxy: ""
 
 # ZFS Configuration
 pool_name: "zroot"
-zfs_id: "linuxmint"  # Used for the dataset name (zroot/ROOT/mint)
+# Boot environment dataset name under {{ pool_name }}/ROOT/<name>
+# For backwards compatibility this defaults to the old zfs_id value.
+zfs_boot_environment: "{{ zfs_id | default('linuxmint') }}"
+# Backwards compatible alias (kept because other tasks/snapshots still use it)
+zfs_id: "linuxmint"  # Used for the dataset name ({{ pool_name }}/ROOT/{{ zfs_id }})
+
+# Ubuntu-installer-inspired dataset layout
+# Toggle individual dataset groups on/off.
+zfs_dataset_layout:
+  create_srv: true
+  separate_usr_local: true
+  create_var_tree: true
+  separate_var_log: true
+  separate_var_cache: true
+  separate_var_tmp: true
+  separate_var_lib: true
+  # Create datasets for a few "stateful" subdirs under /var/lib (Ubuntu does this).
+  var_lib_subdatasets:
+    - AccountsService
+    - NetworkManager
+    - apt
+    - dpkg
+  # Additional /var datasets (opt-in; keep minimal by default)
+  extra_var_subdatasets:
+    - games
+    - mail
+    - snap
+    - spool
+    - www
+
+# Home/root datasets
+# Keep the old behavior (single dataset {{ pool_name }}/home) by default.
+zfs_legacy_home_dataset: true
+# If enabled, create {{ pool_name }}/USERDATA and put /home + /root there.
+zfs_use_userdata_container: false
+# If enabled, create per-user home datasets under USERDATA.
+zfs_per_user_home_datasets: false
+# Optional list for per-user home datasets when zfs_per_user_home_datasets is enabled.
+# Example:
+# zfs_users:
+#   - name: alice
+#   - name: bob
+zfs_users: []
 
 # System Configuration
 hostname: "linux-mint-zbm-test-vm"
@@ -46,4 +88,3 @@ apt_sources: "official"      # Options: "official", "custom"
 
 # Chroot Configuration
 chroot_path: "/mnt"
-...

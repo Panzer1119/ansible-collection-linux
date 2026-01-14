@@ -51,7 +51,38 @@ All variables live in `defaults/main.yml`.
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
 - `zfs_id` (default: `linuxmint`)
-  - Name used for the boot dataset under `{{ pool_name }}/ROOT/{{ zfs_id }}`.
+  - Backwards compatible name used by snapshots and (by default) as boot environment name.
+- `zfs_boot_environment` (default: `{{ zfs_id }}`)
+  - Boot environment dataset name under `{{ pool_name }}/ROOT/<name>`.
+
+### ZFS dataset layout (Ubuntu-installer-inspired)
+
+The role creates a root dataset plus optional sub-datasets to keep snapshots/rollbacks cleaner (similar to Ubuntu’s ZFS installer).
+
+Created by default (in addition to the root datasets):
+
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/srv`  → `/srv`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/usr` (container, `canmount=off`)
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/usr/local` → `/usr/local`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var` (container, `canmount=off`)
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/log` → `/var/log`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/cache` → `/var/cache`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/tmp` → `/var/tmp`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/lib` → `/var/lib`
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/lib/<sub>` (optional list)
+- `{{ pool_name }}/ROOT/{{ zfs_boot_environment }}/var/<sub>` (optional list)
+
+All of the above are controlled via `zfs_dataset_layout` in `defaults/main.yml`.
+
+Home dataset options:
+
+- `zfs_legacy_home_dataset` (default: `true`): create `{{ pool_name }}/home` mounted at `/home`.
+- `zfs_use_userdata_container` (default: `false`): create `{{ pool_name }}/USERDATA` and place `/root` and `/home` datasets there.
+- `zfs_per_user_home_datasets` (default: `false`): create one dataset per user from `zfs_users` when USERDATA is enabled.
+
+Recommended things **not** to put on ZFS datasets:
+
+- `/tmp`, `/run` (usually `tmpfs`)
 
 ### System configuration
 
