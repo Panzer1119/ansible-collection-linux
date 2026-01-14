@@ -1,0 +1,50 @@
+---
+- name: Copy HostID and Resolv.conf
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: '/etc/hostid', dest: '{{ chroot_path }}/etc/hostid' }
+    - { src: '/etc/resolv.conf', dest: '{{ chroot_path }}/etc/resolv.conf' }
+
+- name: Mount virtual filesystems for chroot
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    fstype: "{{ item.fstype }}"
+    opts: "{{ item.opts | default(omit) }}"
+    state: mounted
+  loop:
+    - { path: "{{ chroot_path }}/proc",     src: proc, fstype: proc }
+    - { path: "{{ chroot_path }}/sys",      src: sys,  fstype: sysfs }
+    - { path: "{{ chroot_path }}/dev",      src: /dev, fstype: none, opts: bind }
+    - { path: "{{ chroot_path }}/dev/pts",  src: pts,  fstype: devpts }
+
+- name: (Chroot) Set system hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Ensure hostname is in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1\t{{ hostname }}"
+    create: true
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: Configure APT proxy inside Chroot (optional)
+  template:
+    src: 90proxy.j2
+    dest: "{{ chroot_path }}/etc/apt/apt.conf.d/90proxy"
+    owner: root
+    group: root
+    mode: '0644'
+  when: apt_proxy | default('') | length > 0
+
+- name: (Chroot) Configure APT Sources for Mint
+  ansible.builtin.import_tasks: apt_repositories.yml
+...
