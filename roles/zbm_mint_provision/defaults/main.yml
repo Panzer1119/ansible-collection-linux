@@ -22,7 +22,6 @@ root_password: "password" # Use a hashed password in production
 default_user_name: "panzer1119"
 default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
-skip_dpkg_reconfigure: true
 
 # OS Versions
 ubuntu_codename: "noble"
@@ -38,6 +37,9 @@ mint_locales:
 mint_keyboard:
   layout: "de"
   model: "pc105"
+  variant: "nodeadkeys"
+  options: ""
+skip_configuration: false
 
 installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
 apt_sources: "official"      # Options: "official", "custom"

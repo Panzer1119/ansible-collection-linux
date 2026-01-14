@@ -28,9 +28,9 @@
   delegate_to: "{{ chroot_path }}"
   become: true
 
-- name: (Chroot) DPKG Reconfigure
-  ansible.builtin.import_tasks: dpkg_reconfigure.yml
-  when: not skip_dpkg_reconfigure
+- name: (Chroot) Configure system settings
+  ansible.builtin.import_tasks: configuration.yml
+  when: not skip_configuration
 
 - name: (Chroot) Enable ZFS systemd units
   ansible.builtin.systemd:
