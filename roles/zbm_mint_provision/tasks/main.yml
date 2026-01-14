@@ -78,7 +78,7 @@
 
 - name: Prepare chroot environment
   ansible.builtin.import_tasks: prepare_chroot.yml
-  when: "post-11-initial-config" not in zfs_snapshots
+  when: '"post-11-initial-config" not in zfs_snapshots'
 
 - name: Snapshot after initial configuration
   community.general.zfs:
@@ -95,11 +95,11 @@
 
 - name: Post installation steps
   ansible.builtin.import_tasks: post_installation.yml
-  when: "post-70-provision" not in zfs_snapshots
+  when: '"post-70-provision" not in zfs_snapshots'
 
 - name: Setup ZFSBootMenu
   ansible.builtin.import_tasks: setup_zfsbootmenu.yml
-  when: "post-70-provision" not in zfs_snapshots
+  when: '"post-70-provision" not in zfs_snapshots'
 
 - name: Snapshot before final export
   community.general.zfs:
