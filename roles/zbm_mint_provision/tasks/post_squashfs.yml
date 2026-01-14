@@ -1,16 +1,13 @@
 ---
-- name: Ensure LightDM and GTK greeter are installed
-  ansible.builtin.apt:
-    name:
-      - lightdm
-      - lightdm-gtk-greeter
-    state: present
-    update_cache: no
+- name: Ensure LightDM and GTK greeter are installed (Chroot)
+  shell: |
+    chroot /mnt apt update
+    chroot /mnt apt install -y --no-install-recommends \
+      lightdm lightdm-gtk-greeter
 
-- name: Enable LightDM service
-  ansible.builtin.systemd:
-    name: lightdm
-    enabled: yes
+- name: Enable LightDM service (Chroot)
+  shell: |
+    chroot /mnt systemctl enable lightdm
 
 - name: Snapshot after installation
   community.general.zfs:
