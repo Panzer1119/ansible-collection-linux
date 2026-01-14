@@ -1,0 +1,50 @@
+---
+- name: (Chroot) Set root password
+  ansible.builtin.user:
+    name: root
+    password: "{{ root_password | password_hash('sha512') }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Create default user
+  ansible.builtin.user:
+    name: "{{ default_user_name }}"
+    shell: /bin/bash
+    groups:
+      - sudo
+      - adm
+      - cdrom
+      - dip
+      - plugdev
+      - lpadmin
+      - video
+      - audio
+      - render
+      - input
+      - netdev
+    append: true
+    create_home: true
+    password: "{{ default_user_password | password_hash('sha512') }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) DPKG Reconfigure
+  ansible.builtin.import_tasks: dpkg_reconfigure.yml
+
+- name: (Chroot) Enable ZFS systemd units
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - zfs.target
+    - zfs-import-cache.service
+    - zfs-mount.service
+    - zfs-import.target
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Regenerate initramfs
+  ansible.builtin.command: update-initramfs -c -k all
+  delegate_to: "{{ chroot_name }}"
+  become: true
+...
