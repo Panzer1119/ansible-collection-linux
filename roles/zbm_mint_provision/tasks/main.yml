@@ -59,6 +59,28 @@
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-11-initial-config"
     state: present
 
+- name: (Chroot) Install base system packages
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - linux-generic
+      - dosfstools
+      - zfs-initramfs
+      - zfsutils-linux
+      - curl
+      - efibootmgr
+      - etckeeper
+    state: present
+  delegate_to: "{{ chroot_path }}"
+  become: true
+  when: '"post-20-install-base" not in zfs_snapshots'
+
+- name: Snapshot after base installation
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-install-base"
+    state: present
+
 - name: Post debootstrap steps
   ansible.builtin.import_tasks: post_debootstrap.yml
   when: installation_method == 'debootstrap' and ("post-70-provision" not in zfs_snapshots)
