@@ -1,0 +1,19 @@
+---
+- name: Ensure LightDM and GTK greeter are installed
+  ansible.builtin.apt:
+    name:
+      - lightdm
+      - lightdm-gtk-greeter
+    state: present
+    update_cache: no
+
+- name: Enable LightDM service
+  ansible.builtin.systemd:
+    name: lightdm
+    enabled: yes
+
+- name: Snapshot after installation
+  community.general.zfs:
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-installation"
+    state: present
+...

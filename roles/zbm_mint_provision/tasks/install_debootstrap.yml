@@ -1,0 +1,6 @@
+---
+- name: Bootstrap Ubuntu
+  command: debootstrap {{ ubuntu_codename }} /mnt
+  args:
+    creates: /mnt/bin/bash
+...

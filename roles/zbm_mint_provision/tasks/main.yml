@@ -105,19 +105,22 @@
       - udevadm
       - trigger
 
-- name: Snapshot before debootstrap
+- name: Snapshot after initial creation
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-00-creation"
     state: present
 
 - name: Bootstrap Ubuntu
-  command: debootstrap {{ ubuntu_codename }} /mnt
-  args:
-    creates: /mnt/bin/bash
+  ansible.builtin.import_tasks: install_debootstrap.yml
+  when: installation_method == 'debootstrap'
 
-- name: Snapshot after debootstrap
+- name: Install Live ISO SquashFS
+  ansible.builtin.import_tasks: install_squashfs.yml
+  when: installation_method == 'squashfs'
+
+- name: Snapshot after initial installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-10-debootstrap"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-10-initial-{{installation_method}}"
     state: present
 
 - name: Copy HostID and Resolv.conf
@@ -161,111 +164,18 @@
     mode: '0644'
   when: apt_proxy | default('') | length > 0
 
-- name: Install base system packages (Chroot)
-  shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
-      linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr etckeeper
-
-- name: Snapshot before Mint installation
+- name: Snapshot after initial configuration
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-install-base"
+    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-11-initial-config"
     state: present
 
-- name: Install Mint Keyring (Chroot)
-  shell: |
-    chroot /mnt apt install -y wget gnupg
-    wget -qO /mnt/tmp/mintkey.deb {{ mint_keyring_url }}
-    chroot /mnt dpkg -i /tmp/mintkey.deb
+- name: Post debootstrap steps
+  ansible.builtin.import_tasks: post_debootstrap.yml
+  when: installation_method == 'debootstrap'
 
-- name: Install Mint base packages (Chroot)
-  shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
-      mint-info-cinnamon mint-meta-core mint-meta-codecs
-
-- name: Copy Mint apt preferences (Chroot)
-  copy:
-    src: /mnt/usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref
-    dest: /mnt/etc/apt/preferences.d
-    mode: '0644'
-    remote_src: true
-
-- name: Derive mint base-files version (ubuntu + mint version)
-  set_fact:
-    mint_base_files_version: "13ubuntu10mint{{ mint_version }}" #TODO Get the ubuntu string dynamically
-
-- name: Install base files for Mint (Chroot)
-  command:
-    argv:
-      - chroot
-      - /mnt
-      - apt
-      - install
-      - -y
-      - --no-install-recommends
-      - "base-files={{ mint_base_files_version }}"
-
-- name: Snapshot after Mint base installation
-  community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-base"
-    state: present
-
-- name: Install Cinnamon desktop (Chroot)
-  shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
-      mint-meta-cinnamon
-
-- name: Snapshot after Mint cinnamon installation
-  community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-22-install-mint-cinnamon"
-    state: present
-
-- name: Install display manager and switch (Chroot)
-  shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
-      lightdm
-    chroot /mnt dpkg-reconfigure lightdm
-
-- name: Snapshot after lightdm installation
-  community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-23-install-lightdm"
-    state: present
-
-- name: Install bloat packages (Chroot)
-  shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
-      nemo \
-      xed \
-      xviewer \
-      xreader \
-      celluloid \
-      rhythmbox \
-      file-roller \
-      gnome-terminal \
-      gnome-system-monitor \
-      gnome-screenshot \
-      gnome-disk-utility \
-      gnome-calculator \
-      simple-scan \
-      firefox \
-      thunderbird \
-      vlc \
-      gimp \
-      libreoffice \
-      git \
-      eza \
-      iperf3 \
-      screen \
-      magic-wormhole
-
-- name: Snapshot after bloat installation
-  community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-24-install-bloat"
-    state: present
+- name: Post squashfs steps
+  ansible.builtin.import_tasks: post_squashfs.yml
+  when: installation_method == 'squashfs'
 
 - name: Set Root Password (Chroot)
   shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"

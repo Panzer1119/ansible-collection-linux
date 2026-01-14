@@ -1,0 +1,68 @@
+---
+- name: Ensure mount point for Mint squashfs exists
+  ansible.builtin.file:
+    path: /run/mint_squashfs
+    state: directory
+    mode: '0755'
+
+- name: Check if casper squashfs exists
+  ansible.builtin.stat:
+    path: /cdrom/casper/filesystem.squashfs
+  register: casper_squashfs
+
+- name: Check if live squashfs exists
+  ansible.builtin.stat:
+    path: /cdrom/live/filesystem.squashfs
+  register: live_squashfs
+
+- name: Fail if no squashfs image is available
+  ansible.builtin.fail:
+    msg: "Neither /cdrom/casper/filesystem.squashfs nor /cdrom/live/filesystem.squashfs exists"
+  when: not casper_squashfs.stat.exists and not live_squashfs.stat.exists
+
+- name: Choose squashfs source path
+  ansible.builtin.set_fact:
+    mint_squashfs_source: >-
+      {{ '/cdrom/casper/filesystem.squashfs'
+         if casper_squashfs.stat.exists
+         else '/cdrom/live/filesystem.squashfs' }}
+
+- name: Mount Mint squashfs read-only
+  ansible.builtin.mount:
+    path: /run/mint_squashfs
+    src: "{{ mint_squashfs_source }}"
+    fstype: squashfs
+    opts: ro
+    state: mounted
+
+- name: Ensure rsync is installed
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+    update_cache: no
+
+- name: Ensure target root filesystem directory exists
+  ansible.builtin.file:
+    path: /mnt
+    state: directory
+    mode: '0755'
+
+- name: Mirror live system into target root using rsync
+  ansible.builtin.command:
+    argv:
+      - rsync
+      - -aHAX
+      - --numeric-ids
+      - --info=progress2
+      - --delete
+      - --exclude=/dev/*
+      - --exclude=/proc/*
+      - --exclude=/sys/*
+      - --exclude=/run/*
+      - --exclude=/tmp/*
+      - --exclude=/mnt/*
+      - --exclude=/media/*
+      - --exclude=/lost+found
+      - /run/mint_squashfs/
+      - /mnt/
+...
