@@ -8,6 +8,7 @@
       - tzdata
       - keyboard-configuration
       - console-setup
+      - util-linux-extra # Required for the timezone module "On Ubuntu 24.04 and Debian 13 (Trixie), the util-linux-extra package is required to provide the hwclock command"
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
