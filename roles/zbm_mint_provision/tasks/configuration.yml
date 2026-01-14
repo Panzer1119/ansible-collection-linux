@@ -1,5 +1,5 @@
 ---
-- name: Ensure localization packages are installed
+- name: (Chroot) Ensure localization packages are installed
   ansible.builtin.apt:
     update_cache: true
     install_recommends: false
@@ -13,13 +13,13 @@
   delegate_to: "{{ chroot_path }}"
   become: true
 
-- name: Set timezone
+- name: (Chroot) Set timezone
   community.general.timezone:
     name: "{{ mint_timezone }}"
   delegate_to: "{{ chroot_path }}"
   become: true
 
-- name: Ensure locale is generated (Debian/Ubuntu)
+- name: (Chroot) Ensure locale is generated (Debian/Ubuntu)
   community.general.locale_gen:
     name: "{{ mint_locales.generate }}"
     state: present
@@ -27,7 +27,7 @@
   become: true
   when: ansible_os_family == "Debian"
 
-- name: Set default locale (Debian/Ubuntu)
+- name: (Chroot) Set default locale (Debian/Ubuntu)
   ansible.builtin.lineinfile:
     path: /etc/default/locale
     regexp: '^LANG='
@@ -37,24 +37,23 @@
   become: true
   when: ansible_os_family == "Debian"
 
-- name: Set system locale (RHEL family)
+- name: (Chroot) Set system locale (RHEL family)
   command: "localectl set-locale LANG={{ mint_locales.default }}"
   delegate_to: "{{ chroot_path }}"
   become: true
   when: ansible_os_family == "RedHat"
 
-- name: Set keyboard layout
-  command: localectl set-keymap {{ mint_keyboard.layout }}
+- name: (Chroot) Configure keyboard
+  ansible.builtin.template:
+    src: keyboard.j2
+    dest: /etc/default/keyboard
   delegate_to: "{{ chroot_path }}"
   become: true
 
-- name: Set keyboard
-  command: >
-    localectl set-x11-keymap
-    {{ mint_keyboard.layout }}
-    {{ mint_keyboard.model }}
-    {{ mint_keyboard.variant }}
-    {{ mint_keyboard.options }}
+- name: (Chroot) Configure vconsole
+  ansible.builtin.template:
+    src: keyboard.j2
+    dest: /etc/vconsole.conf
   delegate_to: "{{ chroot_path }}"
   become: true
 ...
