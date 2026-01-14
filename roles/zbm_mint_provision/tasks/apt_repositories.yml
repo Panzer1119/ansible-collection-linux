@@ -9,7 +9,7 @@
     filename: linuxmint
     state: present
     update_cache: false
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 # ------------------------------------------------------------
@@ -22,7 +22,7 @@
     filename: ubuntu
     state: present
     update_cache: false
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Add Ubuntu updates repository
@@ -31,7 +31,7 @@
     filename: ubuntu-updates
     state: present
     update_cache: false
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Add Ubuntu backports repository
@@ -40,7 +40,7 @@
     filename: ubuntu-backports
     state: present
     update_cache: false
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Add Ubuntu security repository
@@ -49,7 +49,7 @@
     filename: ubuntu-security
     state: present
     update_cache: false
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 # ------------------------------------------------------------
@@ -59,6 +59,6 @@
 - name: (Chroot) Update apt cache after configuring repositories
   ansible.builtin.apt:
     update_cache: true
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 ...

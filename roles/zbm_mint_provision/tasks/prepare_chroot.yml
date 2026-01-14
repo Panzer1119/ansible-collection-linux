@@ -24,7 +24,7 @@
 - name: (Chroot) Set system hostname
   ansible.builtin.hostname:
     name: "{{ hostname }}"
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Ensure hostname is in /etc/hosts
@@ -33,7 +33,7 @@
     regexp: '^127\.0\.1\.1'
     line: "127.0.1.1\t{{ hostname }}"
     create: true
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Configure APT proxy inside Chroot (optional)

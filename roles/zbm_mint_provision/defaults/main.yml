@@ -41,6 +41,5 @@ mint_keyboard:
 installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
 
 # Chroot Configuration
-chroot_name: "chroot"
 chroot_path: "/mnt"
 ...

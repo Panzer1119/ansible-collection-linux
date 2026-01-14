@@ -57,7 +57,7 @@
       - ZFSBootMenu (Backup)
       - -l
       - '\EFI\ZBM\VMLINUZ-BACKUP.EFI'
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Create ZFSBootMenu EFI boot entry
@@ -73,6 +73,6 @@
       - ZFSBootMenu
       - -l
       - '\EFI\ZBM\VMLINUZ.EFI'
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 ...

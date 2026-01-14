@@ -5,14 +5,14 @@
       - lightdm
       - lightdm-gtk-greeter
     state: present
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: (Chroot) Enable LightDM service
   ansible.builtin.systemd:
     name: lightdm
     enabled: yes
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Snapshot after installation

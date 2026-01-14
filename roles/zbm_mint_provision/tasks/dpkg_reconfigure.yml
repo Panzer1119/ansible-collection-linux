@@ -10,7 +10,7 @@
       - tzdata
       - keyboard-configuration
       - console-setup
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 # ------------------------------------------------------------
@@ -23,7 +23,7 @@
     question: locales/locales_to_be_generated
     value: "{{ mint_locales.generate | join(', ') }}"
     vtype: multiselect
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Preseed default system locale
@@ -32,12 +32,12 @@
     question: locales/default_environment_locale
     value: "{{ mint_locales.default }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Reconfigure locales non-interactively
   ansible.builtin.command: dpkg-reconfigure -f noninteractive locales
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
   changed_when: false
 
@@ -51,7 +51,7 @@
     question: tzdata/Areas
     value: "{{ mint_timezone.split('/')[0] }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Preseed timezone city
@@ -60,12 +60,12 @@
     question: tzdata/Zones/{{ mint_timezone.split('/')[0] }}
     value: "{{ mint_timezone.split('/')[1] }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Reconfigure tzdata non-interactively
   ansible.builtin.command: dpkg-reconfigure -f noninteractive tzdata
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
   changed_when: false
 
@@ -79,7 +79,7 @@
     question: keyboard-configuration/model
     value: "{{ mint_keyboard.model }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Preseed keyboard layout
@@ -88,7 +88,7 @@
     question: keyboard-configuration/layout
     value: "{{ mint_keyboard.layout }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Preseed console layout
@@ -97,12 +97,12 @@
     question: console-setup/layoutcode
     value: "{{ mint_keyboard.layout }}"
     vtype: select
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
 
 - name: Reconfigure keyboard and console non-interactively
   ansible.builtin.command: dpkg-reconfigure -f noninteractive keyboard-configuration console-setup
-  delegate_to: "{{ chroot_name }}"
+  delegate_to: "{{ chroot_path }}"
   become: true
   changed_when: false
 ...
