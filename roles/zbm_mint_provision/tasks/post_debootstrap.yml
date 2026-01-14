@@ -1,8 +1,8 @@
 ---
 - name: Install base system packages (Chroot)
   shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
+    chroot {{ chroot_path }} apt update
+    chroot {{ chroot_path }} apt install -y --no-install-recommends \
       linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr etckeeper
 
 - name: Snapshot after base installation
@@ -12,20 +12,20 @@
 
 - name: Install Mint Keyring (Chroot)
   shell: |
-    chroot /mnt apt install -y wget gnupg
-    wget -qO /mnt/tmp/mintkey.deb {{ mint_keyring_url }}
-    chroot /mnt dpkg -i /tmp/mintkey.deb
+    chroot {{ chroot_path }} apt install -y wget gnupg
+    wget -qO {{ chroot_path }}/tmp/mintkey.deb {{ mint_keyring_url }}
+    chroot {{ chroot_path }} dpkg -i /tmp/mintkey.deb
 
 - name: Install Mint base packages (Chroot)
   shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
+    chroot {{ chroot_path }} apt update
+    chroot {{ chroot_path }} apt install -y --no-install-recommends \
       mint-info-cinnamon mint-meta-core mint-meta-codecs
 
 - name: Copy Mint apt preferences (Chroot)
   copy:
-    src: /mnt/usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref
-    dest: /mnt/etc/apt/preferences.d
+    src: "{{ chroot_path }}/usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref"
+    dest: "{{ chroot_path }}/etc/apt/preferences.d"
     mode: '0644'
     remote_src: true
 
@@ -37,7 +37,7 @@
   command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - apt
       - install
       - -y
@@ -51,8 +51,8 @@
 
 - name: Install Cinnamon desktop (Chroot)
   shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
+    chroot {{ chroot_path }} apt update
+    chroot {{ chroot_path }} apt install -y --no-install-recommends \
       mint-meta-cinnamon
 
 - name: Snapshot after Mint cinnamon installation
@@ -62,10 +62,10 @@
 
 - name: Install display manager and switch (Chroot)
   shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
+    chroot {{ chroot_path }} apt update
+    chroot {{ chroot_path }} apt install -y --no-install-recommends \
       lightdm
-    chroot /mnt dpkg-reconfigure lightdm
+    chroot {{ chroot_path }} dpkg-reconfigure lightdm
 
 - name: Snapshot after lightdm installation
   community.general.zfs:
@@ -74,8 +74,8 @@
 
 - name: Install bloat packages (Chroot)
   shell: |
-    chroot /mnt apt update
-    chroot /mnt apt install -y --no-install-recommends \
+    chroot {{ chroot_path }} apt update
+    chroot {{ chroot_path }} apt install -y --no-install-recommends \
       nemo \
       xed \
       xviewer \

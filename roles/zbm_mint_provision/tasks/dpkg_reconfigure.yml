@@ -3,7 +3,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - apt
       - update
 
@@ -11,7 +11,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - /usr/bin/env
       - DEBIAN_FRONTEND=noninteractive
       - apt
@@ -27,7 +27,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - ln
       - -sf
       - "/usr/share/zoneinfo/{{ mint_timezone }}"
@@ -37,7 +37,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - sh
       - -c
       - "echo '{{ mint_timezone }}' > /etc/timezone"
@@ -46,7 +46,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - /usr/bin/env
       - DEBIAN_FRONTEND=noninteractive
       - dpkg-reconfigure
@@ -58,7 +58,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - locale-gen
       - "{{ item }}"
   loop: "{{ mint_locales.generate }}"
@@ -67,7 +67,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - update-locale
       - "LANG={{ mint_locales.default }}"
 
@@ -75,7 +75,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - sh
       - -c
       - "echo 'keyboard-configuration keyboard-configuration/xkb-keymap select {{ mint_keyboard.layout }}' | debconf-set-selections"
@@ -84,7 +84,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - sh
       - -c
       - "echo 'keyboard-configuration keyboard-configuration/model select {{ mint_keyboard.model }}' | debconf-set-selections"
@@ -93,7 +93,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - /usr/bin/env
       - DEBIAN_FRONTEND=noninteractive
       - dpkg-reconfigure
@@ -105,7 +105,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - /usr/bin/env
       - DEBIAN_FRONTEND=noninteractive
       - dpkg-reconfigure

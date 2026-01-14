@@ -1,6 +1,6 @@
 ---
 - name: Bootstrap Ubuntu
-  command: debootstrap {{ ubuntu_codename }} /mnt
+  command: "debootstrap {{ ubuntu_codename }} {{ chroot_path }}"
   args:
-    creates: /mnt/bin/bash
+    creates: "{{ chroot_path }}/bin/bash"
 ...

@@ -43,7 +43,7 @@
 
 - name: Ensure target root filesystem directory exists
   ansible.builtin.file:
-    path: /mnt
+    path: "{{ chroot_path }}"
     state: directory
     mode: '0755'
 
@@ -64,5 +64,5 @@
       - --exclude=/media/*
       - --exclude=/lost+found
       - /run/mint_squashfs/
-      - /mnt/
+      - "{{ chroot_path }}"
 ...

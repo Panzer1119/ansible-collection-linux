@@ -92,10 +92,10 @@
       - "bootfs={{ pool_name }}/ROOT/{{ zfs_id }}"
       - "{{ pool_name }}"
 
-- name: Export and Re-import Pool to /mnt
+- name: Export and Re-import Pool to {{ chroot_path }}
   shell: |
     zpool export {{ pool_name }}
-    zpool import -N -R /mnt {{ pool_name }}
+    zpool import -N -R {{ chroot_path }} {{ pool_name }}
     zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
     zfs mount {{ pool_name }}/home
 
@@ -129,8 +129,8 @@
     dest: "{{ item.dest }}"
     remote_src: yes
   loop:
-    - { src: '/etc/hostid', dest: '/mnt/etc/hostid' }
-    - { src: '/etc/resolv.conf', dest: '/mnt/etc/resolv.conf' }
+    - { src: '/etc/hostid', dest: '{{ chroot_path }}/etc/hostid' }
+    - { src: '/etc/resolv.conf', dest: '{{ chroot_path }}/etc/resolv.conf' }
 
 - name: Mount virtual filesystems for chroot
   ansible.posix.mount:
@@ -140,25 +140,25 @@
     opts: "{{ item.opts | default(omit) }}"
     state: mounted
   loop:
-    - { path: /mnt/proc,     src: proc, fstype: proc }
-    - { path: /mnt/sys,      src: sys,  fstype: sysfs }
-    - { path: /mnt/dev,      src: /dev, fstype: none, opts: bind }
-    - { path: /mnt/dev/pts,  src: pts,  fstype: devpts }
+    - { path: "{{ chroot_path }}/proc",     src: proc, fstype: proc }
+    - { path: "{{ chroot_path }}/sys",      src: sys,  fstype: sysfs }
+    - { path: "{{ chroot_path }}/dev",      src: /dev, fstype: none, opts: bind }
+    - { path: "{{ chroot_path }}/dev/pts",  src: pts,  fstype: devpts }
 
 - name: Configure Hostname inside Chroot
   shell: |
-    echo '{{ hostname }}' > /mnt/etc/hostname
-    echo -e '127.0.1.1\t{{ hostname }}' >> /mnt/etc/hosts
+    echo '{{ hostname }}' > {{ chroot_path }}/etc/hostname
+    echo -e '127.0.1.1\t{{ hostname }}' >> {{ chroot_path }}/etc/hosts
 
 - name: Configure APT Sources for Mint
   template:
     src: sources.list.j2
-    dest: /mnt/etc/apt/sources.list
+    dest: "{{ chroot_path }}/etc/apt/sources.list"
 
 - name: Configure APT proxy inside Chroot (optional)
   template:
     src: 90proxy.j2
-    dest: /mnt/etc/apt/apt.conf.d/90proxy
+    dest: "{{ chroot_path }}/etc/apt/apt.conf.d/90proxy"
     owner: root
     group: root
     mode: '0644'
@@ -178,21 +178,21 @@
   when: installation_method == 'squashfs'
 
 - name: Set Root Password (Chroot)
-  shell: chroot /mnt /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
+  shell: chroot {{ chroot_path }} /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
 
 - name: Create default user (Chroot)
   shell: |
-    chroot /mnt useradd -m -s /bin/bash -G sudo {{ default_user_name }}
-    chroot /mnt /bin/bash -c "echo '{{ default_user_name }}:{{ default_user_password }}' | chpasswd"
-    chroot /mnt usermod -aG sudo,adm,cdrom,dip,plugdev,lpadmin,video,audio,render,input,netdev {{ default_user_name }}
+    chroot {{ chroot_path }} useradd -m -s /bin/bash -G sudo {{ default_user_name }}
+    chroot {{ chroot_path }} /bin/bash -c "echo '{{ default_user_name }}:{{ default_user_password }}' | chpasswd"
+    chroot {{ chroot_path }} usermod -aG sudo,adm,cdrom,dip,plugdev,lpadmin,video,audio,render,input,netdev {{ default_user_name }}
 
 - name: DPKG Reconfigure (Chroot)
   ansible.builtin.import_tasks: dpkg_reconfigure.yml
 
 - name: Enable ZFS Services (Chroot)
   shell: |
-    chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
-    chroot /mnt update-initramfs -c -k all
+    chroot {{ chroot_path }} systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
+    chroot {{ chroot_path }} update-initramfs -c -k all
 
 - name: Format EFI system partition
   ansible.builtin.filesystem:
@@ -202,39 +202,39 @@
 
 - name: Ensure EFI mount directory exists
   ansible.builtin.file:
-    path: /mnt/boot/efi
+    path: "{{ chroot_path }}/boot/efi"
     state: directory
 
 - name: Mount EFI system partition in chroot
   ansible.posix.mount:
-    path: /mnt/boot/efi
+    path: "{{ chroot_path }}/boot/efi"
     src: "{{ boot_part_device }}"
     fstype: vfat
     opts: defaults
     state: mounted
-    fstab: /mnt/etc/fstab
+    fstab: "{{ chroot_path }}/etc/fstab"
     #TODO Does this use the UUID automatically?
 
 - name: Create ZFSBootMenu EFI directory
   ansible.builtin.file:
-    path: /mnt/boot/efi/EFI/ZBM
+    path: "{{ chroot_path }}/boot/efi/EFI/ZBM"
     state: directory
 
 - name: Download ZFSBootMenu EFI binary
   ansible.builtin.get_url:
     url: https://get.zfsbootmenu.org/efi
-    dest: /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI
+    dest: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ.EFI"
     mode: '0644'
 
 - name: Create backup ZFSBootMenu EFI binary
   ansible.builtin.copy:
-    src: /mnt/boot/efi/EFI/ZBM/VMLINUZ.EFI
-    dest: /mnt/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI
+    src: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ.EFI"
+    dest: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI"
     remote_src: true
 
 - name: Ensure efivarfs is mounted for chroot
   ansible.posix.mount:
-    path: /mnt/sys/firmware/efi/efivars
+    path: "{{ chroot_path }}/sys/firmware/efi/efivars"
     src: efivarfs
     fstype: efivarfs
     state: mounted
@@ -243,7 +243,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - efibootmgr
       - -c
       - -d
@@ -259,7 +259,7 @@
   ansible.builtin.command:
     argv:
       - chroot
-      - /mnt
+      - "{{ chroot_path }}"
       - efibootmgr
       - -c
       - -d
@@ -278,7 +278,7 @@
 
 - name: Unmount EFI system partition
   ansible.posix.mount:
-    path: /mnt/boot/efi
+    path: "{{ chroot_path }}/boot/efi"
     state: unmounted
   ignore_errors: true
 
@@ -288,16 +288,16 @@
       - umount
       - "-n"
       - "-R"
-      - "/mnt"
+      - "{{ chroot_path }}"
 #  ansible.posix.mount:
 #    path: "{{ item }}"
 #    state: unmounted
 #  loop:
-#    - /mnt/dev/pts
-#    - /mnt/dev
-#    - /mnt/proc
-#    - /mnt/sys
-#    - /mnt
+#    - "{{ chroot_path }}/dev/pts"
+#    - "{{ chroot_path }}/dev"
+#    - "{{ chroot_path }}/proc"
+#    - "{{ chroot_path }}/sys"
+#    - "{{ chroot_path }}"
 
 - name: Export ZFS pool
   ansible.builtin.command:
