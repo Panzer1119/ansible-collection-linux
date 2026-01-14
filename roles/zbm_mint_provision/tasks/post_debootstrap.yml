@@ -73,7 +73,7 @@
     remote_src: true
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: '"post-21-install-mint-base" not in zfs_snapshots'
+  when: apt_sources == 'official' and  '"post-21-install-mint-base" not in zfs_snapshots'
 
 - name: Derive mint base-files version (ubuntu + mint version)
   ansible.builtin.set_fact:

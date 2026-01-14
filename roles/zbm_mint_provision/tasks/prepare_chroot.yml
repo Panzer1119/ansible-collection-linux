@@ -47,4 +47,5 @@
 
 - name: (Chroot) Configure APT Sources for Mint
   ansible.builtin.import_tasks: apt_repositories.yml
+  when: apt_sources == 'custom'
 ...

@@ -39,6 +39,7 @@ mint_keyboard:
   model: "pc105"
 
 installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
+apt_sources: "official"      # Options: "official", "custom"
 
 # Chroot Configuration
 chroot_path: "/mnt"
