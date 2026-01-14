@@ -1,104 +1,168 @@
 ---
-- name: Install base system packages (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt update
-    chroot {{ chroot_path }} apt install -y --no-install-recommends \
-      linux-generic dosfstools zfs-initramfs zfsutils-linux curl efibootmgr etckeeper
+- name: (Chroot) Install base system packages
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - linux-generic
+      - dosfstools
+      - zfs-initramfs
+      - zfsutils-linux
+      - curl
+      - efibootmgr
+      - etckeeper
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot after base installation
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-install-base"
     state: present
 
-- name: Install Mint Keyring (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt install -y wget gnupg
-    wget -qO {{ chroot_path }}/tmp/mintkey.deb {{ mint_keyring_url }}
-    chroot {{ chroot_path }} dpkg -i /tmp/mintkey.deb
+# ------------------------------------------------------------
 
-- name: Install Mint base packages (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt update
-    chroot {{ chroot_path }} apt install -y --no-install-recommends \
-      mint-info-cinnamon mint-meta-core mint-meta-codecs
+- name: (Chroot) Install tools needed for Mint keyring
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - wget
+      - gnupg
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Copy Mint apt preferences (Chroot)
-  copy:
-    src: "{{ chroot_path }}/usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref"
-    dest: "{{ chroot_path }}/etc/apt/preferences.d"
-    mode: '0644'
+- name: (Chroot) Download Mint keyring
+  ansible.builtin.get_url:
+    url: "{{ mint_keyring_url }}"
+    dest: /tmp/mintkey.deb
+    mode: "0644"
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Install Mint keyring package
+  ansible.builtin.apt:
+    deb: /tmp/mintkey.deb
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+# ------------------------------------------------------------
+
+- name: (Chroot) Install Mint base packages
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - mint-info-cinnamon
+      - mint-meta-core
+      - mint-meta-codecs
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Copy Mint apt preferences
+  ansible.builtin.copy:
+    src: /usr/share/linuxmint/mintsystem/apt/official-package-repositories.pref
+    dest: /etc/apt/preferences.d/official-package-repositories.pref
+    mode: "0644"
     remote_src: true
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Derive mint base-files version (ubuntu + mint version)
-  set_fact:
-    mint_base_files_version: "13ubuntu10mint{{ mint_version }}" #TODO Get the ubuntu string dynamically
+  ansible.builtin.set_fact:
+    mint_base_files_version: "13ubuntu10mint{{ mint_version }}" # TODO: derive dynamically
 
-- name: Install base files for Mint (Chroot)
-  command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - apt
-      - install
-      - -y
-      - --no-install-recommends
-      - "base-files={{ mint_base_files_version }}"
+- name: (Chroot) Install Mint base-files package
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name: "base-files={{ mint_base_files_version }}"
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot after Mint base installation
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-base"
     state: present
 
-- name: Install Cinnamon desktop (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt update
-    chroot {{ chroot_path }} apt install -y --no-install-recommends \
-      mint-meta-cinnamon
+# ------------------------------------------------------------
+
+- name: (Chroot) Install Cinnamon desktop meta package
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - mint-meta-cinnamon
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot after Mint cinnamon installation
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-22-install-mint-cinnamon"
     state: present
 
-- name: Install display manager and switch (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt update
-    chroot {{ chroot_path }} apt install -y --no-install-recommends \
-      lightdm
-    chroot {{ chroot_path }} dpkg-reconfigure lightdm
+# ------------------------------------------------------------
+
+- name: (Chroot) Preseed LightDM as default display manager
+  ansible.builtin.debconf:
+    name: lightdm
+    question: shared/default-x-display-manager
+    value: lightdm
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Install LightDM
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - lightdm
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot after lightdm installation
   community.general.zfs:
     name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-23-install-lightdm"
     state: present
 
-- name: Install bloat packages (Chroot)
-  shell: |
-    chroot {{ chroot_path }} apt update
-    chroot {{ chroot_path }} apt install -y --no-install-recommends \
-      nemo \
-      xed \
-      xviewer \
-      xreader \
-      celluloid \
-      rhythmbox \
-      file-roller \
-      gnome-terminal \
-      gnome-system-monitor \
-      gnome-screenshot \
-      gnome-disk-utility \
-      gnome-calculator \
-      simple-scan \
-      firefox \
-      thunderbird \
-      vlc \
-      gimp \
-      libreoffice \
-      git \
-      eza \
-      iperf3 \
-      screen \
-      magic-wormhole
+# ------------------------------------------------------------
+
+- name: (Chroot) Install desktop applications ("bloat")
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - nemo
+      - xed
+      - xviewer
+      - xreader
+      - celluloid
+      - rhythmbox
+      - file-roller
+      - gnome-terminal
+      - gnome-system-monitor
+      - gnome-screenshot
+      - gnome-disk-utility
+      - gnome-calculator
+      - simple-scan
+      - firefox
+      - thunderbird
+      - vlc
+      - gimp
+      - libreoffice
+      - git
+      - eza
+      - iperf3
+      - screen
+      - magic-wormhole
+    state: present
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot after bloat installation
   community.general.zfs:

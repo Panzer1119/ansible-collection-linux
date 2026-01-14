@@ -1,0 +1,64 @@
+---
+# ------------------------------------------------------------
+# Linux Mint repository
+# ------------------------------------------------------------
+
+- name: (Chroot) Add Linux Mint repository
+  ansible.builtin.apt_repository:
+    repo: "deb http://packages.linuxmint.com {{ mint_codename }} main upstream import backport"
+    filename: linuxmint
+    state: present
+    update_cache: false
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+# ------------------------------------------------------------
+# Ubuntu repositories
+# ------------------------------------------------------------
+
+- name: (Chroot) Add Ubuntu main repository
+  ansible.builtin.apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ ubuntu_codename }} main restricted universe multiverse"
+    filename: ubuntu
+    state: present
+    update_cache: false
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Add Ubuntu updates repository
+  ansible.builtin.apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ ubuntu_codename }}-updates main restricted universe multiverse"
+    filename: ubuntu-updates
+    state: present
+    update_cache: false
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Add Ubuntu backports repository
+  ansible.builtin.apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ ubuntu_codename }}-backports main restricted universe multiverse"
+    filename: ubuntu-backports
+    state: present
+    update_cache: false
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Add Ubuntu security repository
+  ansible.builtin.apt_repository:
+    repo: "deb http://security.ubuntu.com/ubuntu {{ ubuntu_codename }}-security main restricted universe multiverse"
+    filename: ubuntu-security
+    state: present
+    update_cache: false
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+# ------------------------------------------------------------
+# Update APT cache once at the end
+# ------------------------------------------------------------
+
+- name: (Chroot) Update apt cache after configuring repositories
+  ansible.builtin.apt:
+    update_cache: true
+  delegate_to: "{{ chroot_name }}"
+  become: true
+...

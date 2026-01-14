@@ -1,115 +1,108 @@
 ---
-- name: Update apt (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - apt
-      - update
+# ------------------------------------------------------------
+# Ensure required packages exist
+# ------------------------------------------------------------
 
-- name: Install required packages (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - /usr/bin/env
-      - DEBIAN_FRONTEND=noninteractive
-      - apt
-      - install
-      - -y
-      - --no-install-recommends
+- name: Ensure localization packages are installed
+  ansible.builtin.apt:
+    name:
       - locales
       - tzdata
       - keyboard-configuration
       - console-setup
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Set timezone (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - ln
-      - -sf
-      - "/usr/share/zoneinfo/{{ mint_timezone }}"
-      - /etc/localtime
+# ------------------------------------------------------------
+# Locales (debconf-driven)
+# ------------------------------------------------------------
 
-- name: Write /etc/timezone (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - sh
-      - -c
-      - "echo '{{ mint_timezone }}' > /etc/timezone"
+- name: Preseed locales to generate
+  ansible.builtin.debconf:
+    name: locales
+    question: locales/locales_to_be_generated
+    value: "{{ mint_locales.generate | join(', ') }}"
+    vtype: multiselect
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Reconfigure tzdata (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - /usr/bin/env
-      - DEBIAN_FRONTEND=noninteractive
-      - dpkg-reconfigure
-      - -f
-      - noninteractive
-      - tzdata
+- name: Preseed default system locale
+  ansible.builtin.debconf:
+    name: locales
+    question: locales/default_environment_locale
+    value: "{{ mint_locales.default }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Generate locales (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - locale-gen
-      - "{{ item }}"
-  loop: "{{ mint_locales.generate }}"
+- name: Reconfigure locales non-interactively
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive locales
+  delegate_to: "{{ chroot_name }}"
+  become: true
+  changed_when: false
 
-- name: Set default locale (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - update-locale
-      - "LANG={{ mint_locales.default }}"
+# ------------------------------------------------------------
+# Timezone (tzdata)
+# ------------------------------------------------------------
 
-- name: Preseed keyboard layout (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - sh
-      - -c
-      - "echo 'keyboard-configuration keyboard-configuration/xkb-keymap select {{ mint_keyboard.layout }}' | debconf-set-selections"
+- name: Preseed timezone
+  ansible.builtin.debconf:
+    name: tzdata
+    question: tzdata/Areas
+    value: "{{ mint_timezone.split('/')[0] }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Preseed keyboard model (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - sh
-      - -c
-      - "echo 'keyboard-configuration keyboard-configuration/model select {{ mint_keyboard.model }}' | debconf-set-selections"
+- name: Preseed timezone city
+  ansible.builtin.debconf:
+    name: tzdata
+    question: tzdata/Zones/{{ mint_timezone.split('/')[0] }}
+    value: "{{ mint_timezone.split('/')[1] }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Reconfigure keyboard (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - /usr/bin/env
-      - DEBIAN_FRONTEND=noninteractive
-      - dpkg-reconfigure
-      - -f
-      - noninteractive
-      - keyboard-configuration
+- name: Reconfigure tzdata non-interactively
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive tzdata
+  delegate_to: "{{ chroot_name }}"
+  become: true
+  changed_when: false
 
-- name: Reconfigure console (Chroot)
-  ansible.builtin.command:
-    argv:
-      - chroot
-      - "{{ chroot_path }}"
-      - /usr/bin/env
-      - DEBIAN_FRONTEND=noninteractive
-      - dpkg-reconfigure
-      - -f
-      - noninteractive
-      - console-setup
+# ------------------------------------------------------------
+# Keyboard / Console
+# ------------------------------------------------------------
+
+- name: Preseed keyboard model
+  ansible.builtin.debconf:
+    name: keyboard-configuration
+    question: keyboard-configuration/model
+    value: "{{ mint_keyboard.model }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: Preseed keyboard layout
+  ansible.builtin.debconf:
+    name: keyboard-configuration
+    question: keyboard-configuration/layout
+    value: "{{ mint_keyboard.layout }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: Preseed console layout
+  ansible.builtin.debconf:
+    name: console-setup
+    question: console-setup/layoutcode
+    value: "{{ mint_keyboard.layout }}"
+    vtype: select
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: Reconfigure keyboard and console non-interactively
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive keyboard-configuration console-setup
+  delegate_to: "{{ chroot_name }}"
+  become: true
+  changed_when: false
 ...

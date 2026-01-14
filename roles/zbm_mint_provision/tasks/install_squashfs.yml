@@ -48,7 +48,7 @@
     mode: '0755'
 
 - name: Mirror live system into target root using rsync
-  ansible.builtin.command:
+  ansible.builtin.command: #TODO Is there a module for this?
     argv:
       - rsync
       - -aHAX

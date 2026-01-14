@@ -145,15 +145,20 @@
     - { path: "{{ chroot_path }}/dev",      src: /dev, fstype: none, opts: bind }
     - { path: "{{ chroot_path }}/dev/pts",  src: pts,  fstype: devpts }
 
-- name: Configure Hostname inside Chroot
-  shell: |
-    echo '{{ hostname }}' > {{ chroot_path }}/etc/hostname
-    echo -e '127.0.1.1\t{{ hostname }}' >> {{ chroot_path }}/etc/hosts
+- name: (Chroot) Set system hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Configure APT Sources for Mint
-  template:
-    src: sources.list.j2
-    dest: "{{ chroot_path }}/etc/apt/sources.list"
+- name: (Chroot) Ensure hostname is in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1\t{{ hostname }}"
+    create: true
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Configure APT proxy inside Chroot (optional)
   template:
@@ -163,6 +168,9 @@
     group: root
     mode: '0644'
   when: apt_proxy | default('') | length > 0
+
+- name: (Chroot) Configure APT Sources for Mint
+  ansible.builtin.import_tasks: apt_repositories.yml
 
 - name: Snapshot after initial configuration
   community.general.zfs:
@@ -177,22 +185,54 @@
   ansible.builtin.import_tasks: post_squashfs.yml
   when: installation_method == 'squashfs'
 
-- name: Set Root Password (Chroot)
-  shell: chroot {{ chroot_path }} /bin/bash -c "echo 'root:{{ root_password }}' | chpasswd"
+- name: (Chroot) Set root password
+  ansible.builtin.user:
+    name: root
+    password: "{{ root_password | password_hash('sha512') }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Create default user (Chroot)
-  shell: |
-    chroot {{ chroot_path }} useradd -m -s /bin/bash -G sudo {{ default_user_name }}
-    chroot {{ chroot_path }} /bin/bash -c "echo '{{ default_user_name }}:{{ default_user_password }}' | chpasswd"
-    chroot {{ chroot_path }} usermod -aG sudo,adm,cdrom,dip,plugdev,lpadmin,video,audio,render,input,netdev {{ default_user_name }}
+- name: (Chroot) Create default user
+  ansible.builtin.user:
+    name: "{{ default_user_name }}"
+    shell: /bin/bash
+    groups:
+      - sudo
+      - adm
+      - cdrom
+      - dip
+      - plugdev
+      - lpadmin
+      - video
+      - audio
+      - render
+      - input
+      - netdev
+    append: true
+    create_home: true
+    password: "{{ default_user_password | password_hash('sha512') }}"
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: DPKG Reconfigure (Chroot)
+- name: (Chroot) DPKG Reconfigure
   ansible.builtin.import_tasks: dpkg_reconfigure.yml
 
-- name: Enable ZFS Services (Chroot)
-  shell: |
-    chroot {{ chroot_path }} systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target
-    chroot {{ chroot_path }} update-initramfs -c -k all
+- name: (Chroot) Enable ZFS systemd units
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - zfs.target
+    - zfs-import-cache.service
+    - zfs-mount.service
+    - zfs-import.target
+  delegate_to: "{{ chroot_name }}"
+  become: true
+
+- name: (Chroot) Regenerate initramfs
+  ansible.builtin.command: update-initramfs -c -k all
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Format EFI system partition
   ansible.builtin.filesystem:
@@ -239,11 +279,9 @@
     fstype: efivarfs
     state: mounted
 
-- name: Create backup ZFSBootMenu EFI boot entry
+- name: (Chroot) Create backup ZFSBootMenu EFI boot entry
   ansible.builtin.command:
     argv:
-      - chroot
-      - "{{ chroot_path }}"
       - efibootmgr
       - -c
       - -d
@@ -251,15 +289,15 @@
       - -p
       - "{{ boot_part_num }}"
       - -L
-      - ZFSBootMenu
+      - ZFSBootMenu (Backup)
       - -l
       - '\EFI\ZBM\VMLINUZ-BACKUP.EFI'
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
-- name: Create ZFSBootMenu EFI boot entry
+- name: (Chroot) Create ZFSBootMenu EFI boot entry
   ansible.builtin.command:
     argv:
-      - chroot
-      - "{{ chroot_path }}"
       - efibootmgr
       - -c
       - -d
@@ -270,6 +308,8 @@
       - ZFSBootMenu
       - -l
       - '\EFI\ZBM\VMLINUZ.EFI'
+  delegate_to: "{{ chroot_name }}"
+  become: true
 
 - name: Snapshot before final export
   community.general.zfs:
