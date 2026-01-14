@@ -1,0 +1,115 @@
+---
+- name: Update apt (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - apt
+      - update
+
+- name: Install required packages (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - /usr/bin/env
+      - DEBIAN_FRONTEND=noninteractive
+      - apt
+      - install
+      - -y
+      - --no-install-recommends
+      - locales
+      - tzdata
+      - keyboard-configuration
+      - console-setup
+
+- name: Set timezone (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - ln
+      - -sf
+      - "/usr/share/zoneinfo/{{ mint_timezone }}"
+      - /etc/localtime
+
+- name: Write /etc/timezone (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - sh
+      - -c
+      - "echo '{{ mint_timezone }}' > /etc/timezone"
+
+- name: Reconfigure tzdata (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - /usr/bin/env
+      - DEBIAN_FRONTEND=noninteractive
+      - dpkg-reconfigure
+      - -f
+      - noninteractive
+      - tzdata
+
+- name: Generate locales (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - locale-gen
+      - "{{ item }}"
+  loop: "{{ mint_locales.generate }}"
+
+- name: Set default locale (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - update-locale
+      - "LANG={{ mint_locales.default }}"
+
+- name: Preseed keyboard layout (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - sh
+      - -c
+      - "echo 'keyboard-configuration keyboard-configuration/xkb-keymap select {{ mint_keyboard.layout }}' | debconf-set-selections"
+
+- name: Preseed keyboard model (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - sh
+      - -c
+      - "echo 'keyboard-configuration keyboard-configuration/model select {{ mint_keyboard.model }}' | debconf-set-selections"
+
+- name: Reconfigure keyboard (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - /usr/bin/env
+      - DEBIAN_FRONTEND=noninteractive
+      - dpkg-reconfigure
+      - -f
+      - noninteractive
+      - keyboard-configuration
+
+- name: Reconfigure console (Chroot)
+  ansible.builtin.command:
+    argv:
+      - chroot
+      - /mnt
+      - /usr/bin/env
+      - DEBIAN_FRONTEND=noninteractive
+      - dpkg-reconfigure
+      - -f
+      - noninteractive
+      - console-setup
+...

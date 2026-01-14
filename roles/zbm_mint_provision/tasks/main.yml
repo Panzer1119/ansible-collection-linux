@@ -186,6 +186,9 @@
     chroot /mnt /bin/bash -c "echo '{{ default_user_name }}:{{ default_user_password }}' | chpasswd"
     chroot /mnt usermod -aG sudo,adm,cdrom,dip,plugdev,lpadmin,video,audio,render,input,netdev {{ default_user_name }}
 
+- name: DPKG Reconfigure (Chroot)
+  ansible.builtin.import_tasks: dpkg_reconfigure.yml
+
 - name: Enable ZFS Services (Chroot)
   shell: |
     chroot /mnt systemctl enable zfs.target zfs-import-cache zfs-mount zfs-import.target

@@ -28,6 +28,15 @@ ubuntu_codename: "noble"
 mint_codename: "zara"
 mint_version: "22.2.0"
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
+mint_timezone: "Europe/Berlin"
+mint_locales:
+  default: "en_US.UTF-8"
+  generate:
+    - "en_US.UTF-8"
+    - "de_DE.UTF-8"
+mint_keyboard:
+  layout: "de"
+  model: "pc105"
 
 installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
 ...
