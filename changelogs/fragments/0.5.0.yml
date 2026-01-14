@@ -1,0 +1,4 @@
+---
+major_changes:
+  - zbm_mint_provision - Add another option to install Linux Mint, by copying the squashfs of a live linux ISO.
+...
