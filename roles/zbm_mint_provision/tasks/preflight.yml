@@ -22,7 +22,7 @@
       {{
         (os_release_raw.content | default('') | b64decode).splitlines()
         | reject('match', '^#')
-        | select('match', '^[A-Za-z0-9_]+=')
+        | select('match', '^[A-Za-z0-9_]+\\s*=')
         | list
       }}
 
@@ -30,8 +30,13 @@
   ansible.builtin.set_fact:
     os_release_map: "{{ os_release_map | combine({ item_key: item_value }) }}"
   vars:
-    item_key: "{{ item.split('=', 1)[0] }}"
-    item_value: "{{ item.split('=', 1)[1] | regex_replace('^\"(.*)\"$', '\\1') }}"
+    item_key: "{{ item.split('=', 1)[0] | trim }}"
+    item_value: >-
+      {{
+        item.split('=', 1)[1] | trim
+        | regex_replace('^\"(.*)\"$', '\\1')
+        | regex_replace("^'(.*)'$", '\\1')
+      }}
   loop: "{{ os_release_pairs }}"
   loop_control:
     label: "{{ item_key }}"
