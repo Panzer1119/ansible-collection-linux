@@ -28,6 +28,18 @@
   delegate_to: "{{ chroot_path }}"
   become: true
 
+- name: (Chroot) Copy /etc/skel into home (do not overwrite existing files)
+  ansible.builtin.copy:
+    src: /etc/skel/
+    dest: "/home/{{ default_user_name }}"
+    owner: "{{ default_user_name }}"
+    group: "{{ default_user_name }}"
+    mode: preserve
+    remote_src: true
+    force: false
+  delegate_to: "{{ chroot_path }}"
+  become: true
+
 - name: (Chroot) Configure system settings
   ansible.builtin.import_tasks: configuration.yml
   when: not skip_configuration
