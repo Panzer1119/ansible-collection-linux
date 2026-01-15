@@ -54,9 +54,9 @@ All variables live in `defaults/main.yml`.
   - Boot environment distro path under `{{ pool_name }}/ROOT/`.
 - `zfs_distro_version` (default: `22.2`)
   - Boot environment version path under `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`.
-- `zfs_dataset_distro_base` (default: `{{ zfs_dataset_distro_base }}`)
+- `zfs_dataset_distro_base` (default: `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`)
   - Base dataset for distro boot environments (mounted at `none`).
-- `zfs_dataset_base` (default: `{{ zfs_dataset_base }}`)
+- `zfs_dataset_base` (default: `{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
   - Additional datasets created under `{{ zfs_dataset_base }}`.
