@@ -27,6 +27,9 @@ zfs_distro_version: "22.2"
 zfs_dataset_distro_base: "{{ pool_name }}/ROOT/{{ zfs_distro_name }}"
 zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}"
 
+#zfs_deduplication: "on"
+zfs_compression: "zstd"
+
 # Additional datasets to create beneath {{ zfs_dataset_base }}.
 # Each item:
 # - name: required, relative dataset path under zfs_dataset_base

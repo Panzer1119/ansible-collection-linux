@@ -46,7 +46,7 @@
       ashift: "12"
       autotrim: "on"
     filesystem_properties:
-      compression: "lz4"
+      compression: "{{ zfs_compression | default('lz4') }}"
       dedup: "{{ zfs_deduplication | default('off') }}"
       acltype: "posixacl"
       xattr: "sa"
