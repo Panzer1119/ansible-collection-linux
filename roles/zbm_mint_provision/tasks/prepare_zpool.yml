@@ -83,6 +83,16 @@
         | list
       }}
 
+- name: Derive snapshot presence booleans (ignore timestamp prefix)
+  ansible.builtin.set_fact:
+    has_snapshot_post_00_creation: >-
+      {{
+        (zfs_snapshots | default([])
+          | select('match', '(^|.*-)post-00-creation$')
+          | list
+          | length) > 0
+      }}
+
 - name: Create Dataset ROOT
   community.general.zfs:
     name: "{{ pool_name }}/ROOT"
@@ -90,7 +100,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       "org.zfsbootmenu:commandline": "quiet splash"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Create boot environment parent dataset {{ zfs_dataset_distro_base }}
   community.general.zfs:
@@ -99,7 +109,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       canmount: "off"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Create boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
@@ -108,7 +118,7 @@
     extra_zfs_properties:
       mountpoint: "/"
       canmount: "noauto"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Create additional datasets under {{ zfs_dataset_base }}
   community.general.zfs:
@@ -118,7 +128,7 @@
       mountpoint: "{{ item.mountpoint | default('/' ~ item.name) }}"
       canmount: "{{ item.canmount | default('on') }}"
   loop: "{{ zfs_additional_datasets | default([]) }}"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Create USERDATA container dataset {{ zfs_userdata_base }}
   community.general.zfs:
@@ -127,7 +137,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       canmount: "off"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Create USERDATA datasets
   community.general.zfs:
@@ -137,7 +147,7 @@
       mountpoint: "{{ item.mountpoint | default('/home/' ~ item.name) }}"
       canmount: "{{ item.canmount | default('on') }}"
   loop: "{{ zfs_userdata_datasets | default([]) }}"
-  when: '"post-00-creation" not in zfs_snapshots'
+  when: not has_snapshot_post_00_creation
 
 - name: Set Pool bootfs property
   ansible.builtin.command:
@@ -164,7 +174,7 @@
     zfs mount {{ zfs_userdata_base }}/{{ uds.name }}
     {% endif %}
     {% endfor %}
-  when: not zfs_pool_exists and "post-00-creation" not in zfs_snapshots
+  when: not zfs_pool_exists and (not has_snapshot_post_00_creation)
 
 - name: Update device symlinks
   ansible.builtin.command:

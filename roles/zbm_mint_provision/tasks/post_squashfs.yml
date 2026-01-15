@@ -1,5 +1,7 @@
 ---
 - name: (Chroot) Ensure LightDM and GTK greeter are installed
+  vars:
+    _snap_post_21_install_re: '(^|.*-)post-21-install$'
   ansible.builtin.apt:
     name:
       - lightdm
@@ -7,7 +9,8 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: '"post-21-install" not in zfs_snapshots'
+  when: >-
+    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_re) | list | length) > 0)
 
 - name: (Chroot) Enable LightDM service
   ansible.builtin.systemd:
@@ -15,7 +18,8 @@
     enabled: yes
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: '"post-21-install" not in zfs_snapshots'
+  when: >-
+    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_re) | list | length) > 0)
 
 - name: Snapshot after installation
   ansible.builtin.command:
