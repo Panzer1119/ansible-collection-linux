@@ -28,6 +28,15 @@
   delegate_to: "{{ chroot_path }}"
   become: true
 
+- name: (Chroot) Check if home is empty
+  ansible.builtin.find:
+    paths: "/home/{{ default_user_name }}"
+    hidden: true
+    file_type: any
+  register: home_contents
+  delegate_to: "{{ chroot_path }}"
+  become: true
+
 - name: (Chroot) Copy /etc/skel into home (do not overwrite existing files)
   ansible.builtin.copy:
     src: /etc/skel/
@@ -39,6 +48,7 @@
     force: false
   delegate_to: "{{ chroot_path }}"
   become: true
+  when: home_contents.matched == 0
 
 - name: (Chroot) Configure system settings
   ansible.builtin.import_tasks: configuration.yml
