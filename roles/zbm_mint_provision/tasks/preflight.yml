@@ -22,7 +22,7 @@
       {{
         (os_release_raw.content | default('') | b64decode).splitlines()
         | reject('match', '^#')
-        | select('match', '^[A-Za-z0-9_]+\\s*=')
+        | select('match', '^[A-Za-z0-9_]+\s*=')
         | list
       }}
 
@@ -34,8 +34,8 @@
     item_value: >-
       {{
         item.split('=', 1)[1] | trim
-        | regex_replace('^\"(.*)\"$', '\\1')
-        | regex_replace("^'(.*)'$", '\\1')
+        | regex_replace("^\"(.*)\"$", "\\1")
+        | regex_replace("^'(.*)'$", "\\1")
       }}
   loop: "{{ os_release_pairs }}"
   loop_control:
