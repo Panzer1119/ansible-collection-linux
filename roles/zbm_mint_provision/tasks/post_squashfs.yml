@@ -13,6 +13,8 @@
     not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_re) | list | length) > 0)
 
 - name: (Chroot) Enable LightDM service
+  vars:
+    _snap_post_21_install_re: '(^|.*-)post-21-install$'
   ansible.builtin.systemd:
     name: lightdm
     enabled: yes
