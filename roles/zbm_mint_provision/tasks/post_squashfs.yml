@@ -23,6 +23,6 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@post-21-install"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-21-install"
     state: present
 ...
