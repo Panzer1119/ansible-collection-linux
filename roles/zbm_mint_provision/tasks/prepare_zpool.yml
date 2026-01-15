@@ -57,42 +57,6 @@
           - "{{ pool_part_device }}"
   when: not zfs_pool_exists
 
-- name: List snapshots of {{ zfs_dataset_base }}
-  ansible.builtin.command:
-    argv:
-      - zfs
-      - list
-      - -t
-      - snapshot
-      - -o
-      - name
-      - -H
-      - -r
-      - "{{ zfs_dataset_base }}"
-  register: zfs_snapshot_list
-  changed_when: "false"
-  failed_when: "false"
-
-- name: Extract snapshot short names into a list
-  ansible.builtin.set_fact:
-    zfs_snapshots: >-
-      {{
-        zfs_snapshot_list.stdout_lines
-        | default([])
-        | map('regex_replace', '^.*@', '')
-        | list
-      }}
-
-- name: Derive snapshot presence booleans (ignore timestamp prefix)
-  ansible.builtin.set_fact:
-    has_snapshot_post_00_creation: >-
-      {{
-        (zfs_snapshots | default([])
-          | select('match', '(^|.*-)post-00-creation$')
-          | list
-          | length) > 0
-      }}
-
 - name: Create Dataset ROOT
   community.general.zfs:
     name: "{{ pool_name }}/ROOT"
@@ -100,7 +64,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       "org.zfsbootmenu:commandline": "quiet splash"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Create boot environment parent dataset {{ zfs_dataset_distro_base }}
   community.general.zfs:
@@ -109,7 +73,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       canmount: "off"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Create boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
@@ -118,7 +82,7 @@
     extra_zfs_properties:
       mountpoint: "/"
       canmount: "noauto"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Create additional datasets under {{ zfs_dataset_base }}
   community.general.zfs:
@@ -128,7 +92,7 @@
       mountpoint: "{{ item.mountpoint | default('/' ~ item.name) }}"
       canmount: "{{ item.canmount | default('on') }}"
   loop: "{{ zfs_additional_datasets | default([]) }}"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Create USERDATA container dataset {{ zfs_userdata_base }}
   community.general.zfs:
@@ -137,7 +101,7 @@
     extra_zfs_properties:
       mountpoint: "none"
       canmount: "off"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Create USERDATA datasets
   community.general.zfs:
@@ -147,7 +111,7 @@
       mountpoint: "{{ item.mountpoint | default('/home/' ~ item.name) }}"
       canmount: "{{ item.canmount | default('on') }}"
   loop: "{{ zfs_userdata_datasets | default([]) }}"
-  when: not has_snapshot_post_00_creation
+  when: not zfs_pool_exists
 
 - name: Set Pool bootfs property
   ansible.builtin.command:
@@ -174,7 +138,33 @@
     zfs mount {{ zfs_userdata_base }}/{{ uds.name }}
     {% endif %}
     {% endfor %}
-  when: not zfs_pool_exists and (not has_snapshot_post_00_creation)
+  when: not zfs_pool_exists
+
+- name: List snapshots of {{ zfs_dataset_base }}
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - list
+      - -t
+      - snapshot
+      - -o
+      - name
+      - -H
+      - -r
+      - "{{ zfs_dataset_base }}"
+  register: zfs_snapshot_list
+  changed_when: "false"
+  failed_when: "false"
+
+- name: Extract snapshot short names into a list
+  ansible.builtin.set_fact:
+    zfs_snapshots: >-
+      {{
+        zfs_snapshot_list.stdout_lines
+        | default([])
+        | map('regex_replace', '^.*@', '')
+        | list
+      }}
 
 - name: Update device symlinks
   ansible.builtin.command:
