@@ -25,7 +25,7 @@ zfs_distro_version: "22.2"
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
 zfs_dataset_distro_base: "{{ pool_name }}/ROOT/{{ zfs_distro_name }}"
-zfs_dataset_base: "{{ zfs_dataset_base }}/{{ zfs_distro_version }}"
+zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}"
 
 # Additional datasets to create beneath {{ zfs_dataset_base }}.
 # Each item:
