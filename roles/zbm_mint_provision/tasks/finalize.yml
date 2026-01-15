@@ -12,15 +12,6 @@
       - "-n"
       - "-R"
       - "{{ chroot_path }}"
-#  ansible.posix.mount:
-#    path: "{{ item }}"
-#    state: unmounted
-#  loop:
-#    - "{{ chroot_path }}/dev/pts"
-#    - "{{ chroot_path }}/dev"
-#    - "{{ chroot_path }}/proc"
-#    - "{{ chroot_path }}/sys"
-#    - "{{ chroot_path }}"
 
 - name: Export ZFS pool
   ansible.builtin.command:
