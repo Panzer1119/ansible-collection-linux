@@ -33,8 +33,12 @@
   ansible.builtin.import_tasks: prepare_zpool.yml
 
 - name: Snapshot after initial creation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-00-creation"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-00-creation"
     state: present
 
 - name: Bootstrap Ubuntu
@@ -50,8 +54,12 @@
     and (("post-10-initial-" ~ installation_method) not in zfs_snapshots)
 
 - name: Snapshot after initial installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-10-initial-{{installation_method}}"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-10-initial-{{installation_method}}"
     state: present
 
 - name: Prepare chroot environment
@@ -59,8 +67,12 @@
   when: '"post-11-initial-config" not in zfs_snapshots'
 
 - name: Snapshot after initial configuration
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-11-initial-config"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-11-initial-config"
     state: present
 
 - name: (Chroot) Install base system packages
@@ -81,8 +93,12 @@
   when: '"post-20-install-base" not in zfs_snapshots'
 
 - name: Snapshot after base installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-20-install-base"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-20-install-base"
     state: present
 
 - name: Post debootstrap steps
@@ -106,8 +122,12 @@
   when: '"post-70-provision" not in zfs_snapshots'
 
 - name: Snapshot before final export
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-70-provision"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-70-provision"
     state: present
 
 - name: Unmount EFI system partition

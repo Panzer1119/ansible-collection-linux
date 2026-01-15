@@ -66,8 +66,12 @@
   when: '"post-21-install-mint-base" not in zfs_snapshots'
 
 - name: Snapshot after Mint base installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-21-install-mint-base"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-21-install-mint-base"
     state: present
 
 # ------------------------------------------------------------
@@ -84,8 +88,12 @@
   when: '"post-22-install-mint-cinnamon" not in zfs_snapshots'
 
 - name: Snapshot after Mint cinnamon installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-22-install-mint-cinnamon"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-22-install-mint-cinnamon"
     state: present
 
 # ------------------------------------------------------------
@@ -112,8 +120,12 @@
   when: '"post-23-install-lightdm" not in zfs_snapshots'
 
 - name: Snapshot after lightdm installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-23-install-lightdm"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-23-install-lightdm"
     state: present
 
 # ------------------------------------------------------------
@@ -152,7 +164,11 @@
   when: '"post-24-install-bloat" not in zfs_snapshots'
 
 - name: Snapshot after bloat installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-24-install-bloat"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-24-install-bloat"
     state: present
 ...

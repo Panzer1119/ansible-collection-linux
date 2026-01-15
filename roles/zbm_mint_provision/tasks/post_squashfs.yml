@@ -18,7 +18,11 @@
   when: '"post-21-install" not in zfs_snapshots'
 
 - name: Snapshot after installation
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}@post-21-install"
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@post-21-install"
     state: present
 ...
