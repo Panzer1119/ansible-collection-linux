@@ -59,7 +59,9 @@ zfs_additional_datasets:
   - name: "var/lib/dpkg"
 
   # Other optional locations
+  - name: "var/games"
   - name: "var/mail"
+  - name: "var/snap"
   - name: "var/spool"
   - name: "var/www"
 
