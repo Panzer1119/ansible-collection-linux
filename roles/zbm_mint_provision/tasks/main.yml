@@ -39,7 +39,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-00-creation"
-    state: present
 
 - name: Bootstrap Ubuntu
   ansible.builtin.import_tasks: install_debootstrap.yml
@@ -66,7 +65,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-10-initial-{{installation_method}}"
-    state: present
 
 - name: Prepare chroot environment
   ansible.builtin.import_tasks: prepare_chroot.yml
@@ -83,7 +81,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-11-initial-config"
-    state: present
 
 - name: (Chroot) Install base system packages
   ansible.builtin.apt:
@@ -113,7 +110,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-20-install-base"
-    state: present
 
 - name: Post debootstrap steps
   ansible.builtin.import_tasks: post_debootstrap.yml
@@ -156,7 +152,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-70-provision"
-    state: present
 
 - name: Unmount EFI system partition
   ansible.posix.mount:

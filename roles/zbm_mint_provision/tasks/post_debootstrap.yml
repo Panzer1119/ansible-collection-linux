@@ -84,7 +84,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-21-install-mint-base"
-    state: present
 
 # ------------------------------------------------------------
 
@@ -107,7 +106,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-22-install-mint-cinnamon"
-    state: present
 
 # ------------------------------------------------------------
 
@@ -141,7 +139,6 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-23-install-lightdm"
-    state: present
 
 # ------------------------------------------------------------
 
@@ -186,5 +183,4 @@
       - snapshot
       - -r
       - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-24-install-bloat"
-    state: present
 ...
