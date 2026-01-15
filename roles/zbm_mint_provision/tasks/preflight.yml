@@ -5,16 +5,23 @@
   register: efi_check
   failed_when: not efi_check.stat.exists
 
+- name: Check /etc/os-release
+  ansible.builtin.stat:
+    path: /etc/os-release
+  register: os_release_stat
+  changed_when: false
+
 - name: Read /etc/os-release
   ansible.builtin.slurp:
     path: /etc/os-release
   register: os_release_raw
   changed_when: false
-  failed_when: false
+  when: os_release_stat.stat.exists
 
 - name: Initialize os-release map
   ansible.builtin.set_fact:
     os_release_map: {}
+    os_release_pairs: []
 
 - name: Extract os-release key/value pairs
   ansible.builtin.set_fact:
@@ -22,9 +29,10 @@
       {{
         (os_release_raw.content | default('') | b64decode).splitlines()
         | reject('match', '^#')
-        | select('match', '^[A-Za-z0-9_]+\s*=')
+        | select('match', '^[A-Za-z0-9_]+=')
         | list
       }}
+  when: os_release_stat.stat.exists
 
 - name: Build os-release map
   ansible.builtin.set_fact:
@@ -34,12 +42,13 @@
     item_value: >-
       {{
         item.split('=', 1)[1] | trim
-        | regex_replace("^\"(.*)\"$", "\\1")
-        | regex_replace("^'(.*)'$", "\\1")
+        | regex_replace("^\"([^\"]*)\"$", "\\1")
+        | regex_replace("^'([^']*)'$", "\\1")
       }}
   loop: "{{ os_release_pairs }}"
   loop_control:
     label: "{{ item_key }}"
+  when: os_release_stat.stat.exists
 
 - name: Derive zfs distro name from os-release
   ansible.builtin.set_fact:
