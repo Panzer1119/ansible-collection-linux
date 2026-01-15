@@ -90,7 +90,7 @@ timezone: "Europe/Berlin"
 # OS Versions
 ubuntu_codename: "{{ (ansible_facts | default({})).get('os_release', {}).get('UBUNTU_CODENAME', 'noble') }}"
 mint_codename: "{{ (ansible_facts | default({})).get('os_release', {}).get('VERSION_CODENAME', 'zara') }}"
-mint_version: "{{ (ansible_facts | default({})).get('os_release', {}).get('VERSION_ID', '22.2.0') }}"
+mint_version: "{{ (ansible_facts | default({})).get('os_release', {}).get('VERSION_ID', '22.2') }}"
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
 
 # Localization

@@ -93,7 +93,7 @@ All variables live in `defaults/main.yml`.
   - Used for debootstrap.
 - `mint_codename` (default: `/etc/os-release:VERSION_CODENAME`, fallback: `zara`)
   - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
-- `mint_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2.0`)
+- `mint_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2`)
   - Used for Mint package version pinning in debootstrap installs.
 - `mint_keyring_url`
   - URL to the Linux Mint keyring `.deb` installed inside the chroot.
