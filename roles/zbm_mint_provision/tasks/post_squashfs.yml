@@ -19,6 +19,6 @@
 
 - name: Snapshot after installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install"
+    name: "{{ zfs_dataset_base }}@post-21-install"
     state: present
 ...

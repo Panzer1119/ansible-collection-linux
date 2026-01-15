@@ -34,7 +34,7 @@
 
 - name: Snapshot after initial creation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-00-creation"
+    name: "{{ zfs_dataset_base }}@post-00-creation"
     state: present
 
 - name: Bootstrap Ubuntu
@@ -51,7 +51,7 @@
 
 - name: Snapshot after initial installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-10-initial-{{installation_method}}"
+    name: "{{ zfs_dataset_base }}@post-10-initial-{{installation_method}}"
     state: present
 
 - name: Prepare chroot environment
@@ -60,7 +60,7 @@
 
 - name: Snapshot after initial configuration
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-11-initial-config"
+    name: "{{ zfs_dataset_base }}@post-11-initial-config"
     state: present
 
 - name: (Chroot) Install base system packages
@@ -82,7 +82,7 @@
 
 - name: Snapshot after base installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-20-install-base"
+    name: "{{ zfs_dataset_base }}@post-20-install-base"
     state: present
 
 - name: Post debootstrap steps
@@ -107,7 +107,7 @@
 
 - name: Snapshot before final export
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-70-provision"
+    name: "{{ zfs_dataset_base }}@post-70-provision"
     state: present
 
 - name: Unmount EFI system partition

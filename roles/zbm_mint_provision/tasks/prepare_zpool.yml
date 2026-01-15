@@ -57,7 +57,7 @@
           - "{{ pool_part_device }}"
   when: not zfs_pool_exists
 
-- name: List snapshots of {{ pool_name }}/ROOT/{{ zfs_id }}
+- name: List snapshots of {{ zfs_dataset_base }}
   ansible.builtin.command:
     argv:
       - zfs
@@ -68,7 +68,7 @@
       - name
       - -H
       - -r
-      - "{{ pool_name }}/ROOT/{{ zfs_id }}"
+      - "{{ zfs_dataset_base }}"
   register: zfs_snapshot_list
   changed_when: "false"
   failed_when: "false"
@@ -92,21 +92,42 @@
       "org.zfsbootmenu:commandline": "quiet splash"
   when: '"post-00-creation" not in zfs_snapshots'
 
-- name: Create Dataset ROOT/{{ zfs_id }}
+- name: Create boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+    name: "{{ zfs_dataset_base }}"
     state: present
     extra_zfs_properties:
       mountpoint: "/"
       canmount: "noauto"
   when: '"post-00-creation" not in zfs_snapshots'
 
-- name: Create Dataset home
+- name: Create additional datasets under {{ zfs_dataset_base }}
   community.general.zfs:
-    name: "{{ pool_name }}/home"
+    name: "{{ zfs_dataset_base }}/{{ item.name }}"
     state: present
     extra_zfs_properties:
-      mountpoint: "/home"
+      mountpoint: "{{ item.mountpoint | default('/' ~ item.name) }}"
+      canmount: "{{ item.canmount | default('on') }}"
+  loop: "{{ zfs_additional_datasets | default([]) }}"
+  when: '"post-00-creation" not in zfs_snapshots'
+
+- name: Create USERDATA container dataset {{ zfs_userdata_base }}
+  community.general.zfs:
+    name: "{{ zfs_userdata_base }}"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "none"
+      canmount: "off"
+  when: '"post-00-creation" not in zfs_snapshots'
+
+- name: Create USERDATA datasets
+  community.general.zfs:
+    name: "{{ zfs_userdata_base }}/{{ item.name }}"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "{{ item.mountpoint | default('/home/' ~ item.name) }}"
+      canmount: "{{ item.canmount | default('on') }}"
+  loop: "{{ zfs_userdata_datasets | default([]) }}"
   when: '"post-00-creation" not in zfs_snapshots'
 
 - name: Set Pool bootfs property
@@ -114,15 +135,26 @@
     argv:
       - zpool
       - set
-      - "bootfs={{ pool_name }}/ROOT/{{ zfs_id }}"
+      - "bootfs={{ zfs_dataset_base }}"
       - "{{ pool_name }}"
 
 - name: Export and Re-import Pool to {{ chroot_path }}
   shell: |
     zpool export {{ pool_name }}
     zpool import -N -R {{ chroot_path }} {{ pool_name }}
-    zfs mount {{ pool_name }}/ROOT/{{ zfs_id }}
-    zfs mount {{ pool_name }}/home
+    zfs mount {{ zfs_dataset_base }}
+
+    {% for ds in (zfs_additional_datasets | default([])) %}
+    {% if ds.canmount is not defined or ds.canmount != "off" %}
+    zfs mount {{ zfs_dataset_base }}/{{ ds.name }}
+    {% endif %}
+    {% endfor %}
+
+    {% for uds in (zfs_userdata_datasets | default([])) %}
+    {% if uds.canmount is not defined or uds.canmount != "off" %}
+    zfs mount {{ zfs_userdata_base }}/{{ uds.name }}
+    {% endif %}
+    {% endfor %}
   when: not zfs_pool_exists and "post-00-creation" not in zfs_snapshots
 
 - name: Update device symlinks

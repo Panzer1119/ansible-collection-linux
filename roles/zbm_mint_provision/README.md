@@ -51,7 +51,25 @@ All variables live in `defaults/main.yml`.
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
 - `zfs_id` (default: `linuxmint`)
-  - Name used for the boot dataset under `{{ pool_name }}/ROOT/{{ zfs_id }}`.
+  - Boot environment path under `{{ pool_name }}/ROOT/`.
+  - Tip: you can include slashes to get an Ubuntu-installer-like layout, e.g. `mint/22.2` `{{ pool_name }}/ROOT/mint/22.2`.
+- `zfs_dataset_base` (default: `{{ zfs_dataset_base }}`)
+  - Base dataset for the boot environment (mounted at `/` in the target system).
+- `zfs_additional_datasets` (list)
+  - Additional datasets created under `{{ zfs_dataset_base }}`.
+  - Schema per item:
+    - `name` (required): relative dataset path under `zfs_dataset_base` (e.g. `var/log`)
+    - `mountpoint` (optional): defaults to `/<name>`
+    - `canmount` (optional): defaults to `on` (use `off` for container datasets like `var`)
+- `zfs_userdata_base` (default: `{{ pool_name }}/USERDATA`)
+  - Container dataset for users (created with `canmount=off`, `mountpoint=none`).
+- `zfs_userdata_datasets` (list)
+  - Datasets created under `{{ zfs_userdata_base }}`.
+  - Same schema as above (defaults to `/home/<name>`).
+
+> Recommendation: split datasets only where you plan to snapshot/rollback independently.
+> Good candidates are `/var/log`, `/var/lib`, `/srv`, and `/home`. Very fine-grained splits under `/var/lib/*`
+> are optional and mostly useful if you frequently roll back system datasets.
 
 ### System configuration
 
@@ -91,14 +109,27 @@ These snapshots are useful as rollback points while iterating on provisioning.
   roles:
     - role: panzer1119.linux.zbm_mint_provision
       vars:
-        boot_disk: /dev/nvme0n1
-        pool_disk: /dev/nvme0n1
-        is_nvme: true
-        hostname: mint-zbm
-        root_password: "changeme"
-        apt_proxy: "http://aptproxy.local:3142"
         pool_name: zroot
-        zfs_id: mint
+        # Ubuntu-installer-like boot environment path
+        zfs_id: "mint/22.2"
+
+        # Additional datasets under zroot/ROOT/mint/22.2
+        zfs_additional_datasets:
+          - { name: "srv" }
+          - { name: "usr", canmount: "off" }
+          - { name: "usr/local" }
+          - { name: "var", canmount: "off" }
+          - { name: "var/log" }
+          - { name: "var/lib" }
+          - { name: "var/lib/AccountsService" }
+          - { name: "var/lib/NetworkManager" }
+          - { name: "var/lib/apt" }
+          - { name: "var/lib/dpkg" }
+
+        # User datasets under zroot/USERDATA
+        zfs_userdata_datasets:
+          - { name: "panzer1119" }
+          - { name: "root", mountpoint: "/root" }
 ```
 
 ## Notes

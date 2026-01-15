@@ -14,7 +14,60 @@ apt_proxy: ""
 
 # ZFS Configuration
 pool_name: "zroot"
-zfs_id: "linuxmint"  # Used for the dataset name (zroot/ROOT/mint)
+# Boot environment identifier.
+# This role will create a boot environment dataset:
+#   {{ pool_name }}/ROOT/{{ zfs_id }}
+# If you want a more Ubuntu-installer-like layout (ROOT/<os>/<release>), set
+# zfs_id accordingly (e.g. "mint/22.2").
+zfs_id: "mint/22.2"  # Used for the dataset name (zroot/ROOT/<zfs_id>)
+
+# Base dataset prefix under which additional datasets are created.
+# Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
+zfs_dataset_base: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+
+# Additional datasets to create beneath {{ zfs_dataset_base }}.
+# Each item:
+# - name: required, relative dataset path under zfs_dataset_base
+# - mountpoint: optional, defaults to "/<name>"
+# - canmount: optional, defaults to "on" (use "off" for containers)
+#
+# Notes:
+# - The boot environment dataset itself ({{ zfs_dataset_base }}) is created
+#   explicitly by the role and mounted at '/'.
+# - Use container datasets with canmount=off to allow child datasets to mount.
+# - Keep this list fairly small; add deeper splits only if you snapshot/rollback
+#   them independently.
+zfs_additional_datasets:
+  # Ubuntu-style containers
+  - name: "usr"
+    canmount: "off"
+  - name: "usr/local"
+  - name: "var"
+    canmount: "off"
+
+  # Commonly useful splits
+  - name: "srv"
+  - name: "var/log"
+  - name: "var/lib"
+
+  # Mint/Ubuntu specific state (optional; safe defaults)
+  - name: "var/lib/AccountsService"
+  - name: "var/lib/NetworkManager"
+  - name: "var/lib/apt"
+  - name: "var/lib/dpkg"
+
+  # Other optional locations
+  - name: "var/mail"
+  - name: "var/spool"
+  - name: "var/www"
+
+# User/root datasets (created at pool level by default)
+# This mirrors Ubuntu's USERDATA concept.
+zfs_userdata_base: "{{ pool_name }}/USERDATA"
+zfs_userdata_datasets:
+  - name: "{{ default_user_name }}"
+  - name: "root"
+    mountpoint: "/root"
 
 # System Configuration
 hostname: "linux-mint-zbm-test-vm"

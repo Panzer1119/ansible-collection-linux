@@ -67,7 +67,7 @@
 
 - name: Snapshot after Mint base installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-21-install-mint-base"
+    name: "{{ zfs_dataset_base }}@post-21-install-mint-base"
     state: present
 
 # ------------------------------------------------------------
@@ -85,7 +85,7 @@
 
 - name: Snapshot after Mint cinnamon installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-22-install-mint-cinnamon"
+    name: "{{ zfs_dataset_base }}@post-22-install-mint-cinnamon"
     state: present
 
 # ------------------------------------------------------------
@@ -113,7 +113,7 @@
 
 - name: Snapshot after lightdm installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-23-install-lightdm"
+    name: "{{ zfs_dataset_base }}@post-23-install-lightdm"
     state: present
 
 # ------------------------------------------------------------
@@ -153,6 +153,6 @@
 
 - name: Snapshot after bloat installation
   community.general.zfs:
-    name: "{{ pool_name }}/ROOT/{{ zfs_id }}@post-24-install-bloat"
+    name: "{{ zfs_dataset_base }}@post-24-install-bloat"
     state: present
 ...
