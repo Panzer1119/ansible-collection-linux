@@ -23,9 +23,9 @@ pool_name: "zroot"
 #   {{ pool_name }}/ROOT/{{ zfs_distro_name }}/{{ zfs_distro_version }}
 # If you want a more Ubuntu-installer-like layout (ROOT/<os>/<release>), set
 # zfs_distro_name and zfs_distro_version accordingly (e.g. "mint", and "22.2").
-# When left empty, these are derived from /etc/os-release in preflight.
-zfs_distro_name: ""
-zfs_distro_version: ""
+# Derived from ansible_lsb facts when available.
+zfs_distro_name: "{{ ansible_lsb.id | default('mint') }}"
+zfs_distro_version: "{{ ansible_lsb.release | default('22.2') }}"
 
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
@@ -89,10 +89,15 @@ default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
 
 # OS Versions
-# When left empty, these are derived from /etc/os-release in preflight.
-ubuntu_codename: ""
-mint_codename: ""
-mint_version: ""
+# OS Versions (prefer ansible_lsb facts when available)
+ubuntu_codename: "noble"
+mint_codename: "{{ ansible_lsb.codename | default('zara') }}"
+mint_version: >-
+  {{
+    (ansible_lsb.release | default('22.2')) ~ '.0'
+    if (ansible_lsb.release | default('22.2')) is match('^\\d+\\.\\d+$')
+    else (ansible_lsb.release | default('22.2.0'))
+  }}
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
 
 # Localization

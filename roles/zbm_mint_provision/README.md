@@ -25,8 +25,6 @@ This role is intended to be run from a **live environment** (e.g. Linux Mint liv
 
 All variables live in `defaults/main.yml`.
 
-The role reads `/etc/os-release` during preflight to populate distro and codename defaults when those variables are left empty.
-
 ### Disk configuration
 
 - `boot_disk` (default: `/dev/sda`)
@@ -52,9 +50,9 @@ The role reads `/etc/os-release` during preflight to populate distro and codenam
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_distro_name` (default: `/etc/os-release:ID`, fallback: `mint`)
+- `zfs_distro_name` (default: `ansible_lsb.id`, fallback: `mint`)
   - Boot environment distro path under `{{ pool_name }}/ROOT/`.
-- `zfs_distro_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2`)
+- `zfs_distro_version` (default: `ansible_lsb.release`, fallback: `22.2`)
   - Boot environment version path under `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`.
 - `zfs_dataset_distro_base` (default: `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`)
   - Base dataset for distro boot environments (mounted at `none`).
@@ -91,12 +89,12 @@ The role reads `/etc/os-release` during preflight to populate distro and codenam
 
 ### OS versions
 
-- `ubuntu_codename` (default: `/etc/os-release:UBUNTU_CODENAME`, fallback: `noble`)
+- `ubuntu_codename` (default: `noble`)
   - Used for debootstrap.
-- `mint_codename` (default: `/etc/os-release:VERSION_CODENAME`, fallback: `zara`)
+- `mint_codename` (default: `ansible_lsb.codename`, fallback: `zara`)
   - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
-- `mint_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2.0`)
-  - Used for Mint package version pinning in debootstrap installs; fallback keeps the full package version even if it differs from `zfs_distro_version`.
+- `mint_version` (default: `ansible_lsb.release`, fallback: `22.2.0`)
+  - Used for Mint package version pinning in debootstrap installs. The default appends `.0` when the release is only two parts (e.g. `22.2` → `22.2.0`).
 - `mint_keyring_url`
   - URL to the Linux Mint keyring `.deb` installed inside the chroot.
 
