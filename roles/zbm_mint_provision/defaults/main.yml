@@ -16,14 +16,16 @@ apt_proxy: ""
 pool_name: "zroot"
 # Boot environment identifier.
 # This role will create a boot environment dataset:
-#   {{ pool_name }}/ROOT/{{ zfs_id }}
+#   {{ pool_name }}/ROOT/{{ zfs_distro_name }}/{{ zfs_distro_version }}
 # If you want a more Ubuntu-installer-like layout (ROOT/<os>/<release>), set
-# zfs_id accordingly (e.g. "mint/22.2").
-zfs_id: "mint/22.2"  # Used for the dataset name (zroot/ROOT/<zfs_id>)
+# zfs_distro_name and zfs_distro_version accordingly (e.g. "mint", and "22.2").
+zfs_distro_name: "mint"
+zfs_distro_version: "22.2"
 
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
-zfs_dataset_base: "{{ pool_name }}/ROOT/{{ zfs_id }}"
+zfs_dataset_distro_base: "{{ pool_name }}/ROOT/{{ zfs_distro_name }}"
+zfs_dataset_base: "{{ zfs_dataset_base }}/{{ zfs_distro_version }}"
 
 # Additional datasets to create beneath {{ zfs_dataset_base }}.
 # Each item:

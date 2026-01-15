@@ -92,6 +92,15 @@
       "org.zfsbootmenu:commandline": "quiet splash"
   when: '"post-00-creation" not in zfs_snapshots'
 
+- name: Create boot environment parent dataset {{ zfs_dataset_distro_base }}
+  community.general.zfs:
+    name: "{{ zfs_dataset_distro_base }}"
+    state: present
+    extra_zfs_properties:
+      mountpoint: "none"
+      canmount: "off"
+  when: '"post-00-creation" not in zfs_snapshots'
+
 - name: Create boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
     name: "{{ zfs_dataset_base }}"
