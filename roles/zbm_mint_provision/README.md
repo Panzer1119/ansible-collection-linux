@@ -50,9 +50,9 @@ All variables live in `defaults/main.yml`.
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_distro_name` (default: `mint`)
+- `zfs_distro_name` (default: `/etc/os-release:ID`, fallback: `mint`)
   - Boot environment distro path under `{{ pool_name }}/ROOT/`.
-- `zfs_distro_version` (default: `22.2`)
+- `zfs_distro_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2`)
   - Boot environment version path under `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`.
 - `zfs_dataset_distro_base` (default: `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`)
   - Base dataset for distro boot environments (mounted at `none`).
@@ -89,10 +89,12 @@ All variables live in `defaults/main.yml`.
 
 ### OS versions
 
-- `ubuntu_codename` (default: `noble`)
+- `ubuntu_codename` (default: `/etc/os-release:UBUNTU_CODENAME`, fallback: `noble`)
   - Used for debootstrap.
-- `mint_codename` (default: `zara`)
+- `mint_codename` (default: `/etc/os-release:VERSION_CODENAME`, fallback: `zara`)
   - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
+- `mint_version` (default: `/etc/os-release:VERSION_ID`, fallback: `22.2.0`)
+  - Used for Mint package version pinning in debootstrap installs.
 - `mint_keyring_url`
   - URL to the Linux Mint keyring `.deb` installed inside the chroot.
 
