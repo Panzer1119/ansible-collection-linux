@@ -5,6 +5,52 @@
   register: efi_check
   failed_when: not efi_check.stat.exists
 
+- name: Read /etc/os-release
+  ansible.builtin.slurp:
+    path: /etc/os-release
+  register: os_release_raw
+  changed_when: false
+  failed_when: false
+
+- name: Parse /etc/os-release values
+  ansible.builtin.set_fact:
+    os_release_map: "{{ dict(_os_release_lines | map('split', '=', 1) | list) }}"
+  vars:
+    _os_release_lines: >-
+      {{
+        (os_release_raw.content | default('') | b64decode).splitlines()
+        | reject('match', '^#')
+        | select('match', '^[A-Z0-9_]+=')
+        | map('regex_replace', '"', '')
+        | list
+      }}
+  changed_when: false
+
+- name: Derive zfs distro name from os-release
+  ansible.builtin.set_fact:
+    zfs_distro_name: "{{ os_release_map.get('ID', 'mint') }}"
+  when: zfs_distro_name | default('') | length == 0
+
+- name: Derive zfs distro version from os-release
+  ansible.builtin.set_fact:
+    zfs_distro_version: "{{ os_release_map.get('VERSION_ID', '22.2') }}"
+  when: zfs_distro_version | default('') | length == 0
+
+- name: Derive ubuntu codename from os-release
+  ansible.builtin.set_fact:
+    ubuntu_codename: "{{ os_release_map.get('UBUNTU_CODENAME', 'noble') }}"
+  when: ubuntu_codename | default('') | length == 0
+
+- name: Derive Mint codename from os-release
+  ansible.builtin.set_fact:
+    mint_codename: "{{ os_release_map.get('VERSION_CODENAME', 'zara') }}"
+  when: mint_codename | default('') | length == 0
+
+- name: Derive Mint version from os-release
+  ansible.builtin.set_fact:
+    mint_version: "{{ os_release_map.get('VERSION_ID', '22.2.0') }}"
+  when: mint_version | default('') | length == 0
+
 - name: Configure APT proxy on Live ISO (optional)
   template:
     src: 90proxy.j2

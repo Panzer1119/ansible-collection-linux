@@ -25,6 +25,8 @@ This role is intended to be run from a **live environment** (e.g. Linux Mint liv
 
 All variables live in `defaults/main.yml`.
 
+The role reads `/etc/os-release` during preflight to populate distro and codename defaults when those variables are left empty.
+
 ### Disk configuration
 
 - `boot_disk` (default: `/dev/sda`)
