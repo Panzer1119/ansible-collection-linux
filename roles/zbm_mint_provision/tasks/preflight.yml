@@ -5,24 +5,21 @@
   register: efi_check
   failed_when: not efi_check.stat.exists
 
-- name: Read /etc/os-release
-  ansible.builtin.slurp:
-    path: /etc/os-release
-  register: os_release_raw
+- name: Read /etc/os-release values
+  ansible.builtin.command:
+    cmd: >-
+      sh -c '. /etc/os-release && printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\n"
+      "${ID:-}" "${VERSION_ID:-}" "${VERSION_CODENAME:-}" "${UBUNTU_CODENAME:-}"'
+  register: os_release_values
   changed_when: false
   failed_when: false
 
 - name: Parse /etc/os-release values
   ansible.builtin.set_fact:
-    os_release_map: "{{ dict(_os_release_lines | map('split', '=', 1) | list) }}"
-  vars:
-    _os_release_lines: >-
+    os_release_map: >-
       {{
-        (os_release_raw.content | default('') | b64decode).splitlines()
-        | reject('match', '^#')
-        | select('match', '^[A-Z0-9_]+=')
-        | map('regex_replace', '"', '')
-        | list
+        dict((os_release_values.stdout_lines | default([]))
+        | map('split', '=', 1) | list)
       }}
   changed_when: false
 
