@@ -5,23 +5,36 @@
   register: efi_check
   failed_when: not efi_check.stat.exists
 
-- name: Read /etc/os-release values
-  ansible.builtin.command:
-    cmd: >-
-      sh -c '. /etc/os-release && printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\n"
-      "${ID:-}" "${VERSION_ID:-}" "${VERSION_CODENAME:-}" "${UBUNTU_CODENAME:-}"'
-  register: os_release_values
+- name: Read /etc/os-release
+  ansible.builtin.slurp:
+    path: /etc/os-release
+  register: os_release_raw
   changed_when: false
   failed_when: false
 
-- name: Parse /etc/os-release values
+- name: Initialize os-release map
   ansible.builtin.set_fact:
-    os_release_map: >-
+    os_release_map: {}
+
+- name: Extract os-release key/value pairs
+  ansible.builtin.set_fact:
+    os_release_pairs: >-
       {{
-        dict((os_release_values.stdout_lines | default([]))
-        | map('split', '=', 1) | list)
+        (os_release_raw.content | default('') | b64decode).splitlines()
+        | reject('match', '^#')
+        | select('match', '^[A-Za-z0-9_]+=')
+        | list
       }}
-  changed_when: false
+
+- name: Build os-release map
+  ansible.builtin.set_fact:
+    os_release_map: "{{ os_release_map | combine({ item_key: item_value }) }}"
+  vars:
+    item_key: "{{ item.split('=', 1)[0] }}"
+    item_value: "{{ item.split('=', 1)[1] | regex_replace('^\"(.*)\"$', '\\1') }}"
+  loop: "{{ os_release_pairs }}"
+  loop_control:
+    label: "{{ item_key }}"
 
 - name: Derive zfs distro name from os-release
   ansible.builtin.set_fact:
@@ -45,6 +58,7 @@
 
 - name: Derive Mint version from os-release
   ansible.builtin.set_fact:
+    # Mint version uses the full package version fallback.
     mint_version: "{{ os_release_map.get('VERSION_ID', '22.2.0') }}"
   when: mint_version | default('') | length == 0
 
