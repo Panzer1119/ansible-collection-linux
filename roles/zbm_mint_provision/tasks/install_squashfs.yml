@@ -52,7 +52,7 @@
     src: /run/mint_squashfs/
     dest: "{{ chroot_path }}/"
     archive: true
-    delete: true
+    delete: false # This causes problems when it tries to delete a directory that is a zfs dataset mount
     compress: false
     rsync_opts:
       - "-HAX"
