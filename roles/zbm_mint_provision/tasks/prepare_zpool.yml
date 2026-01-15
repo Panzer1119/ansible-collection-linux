@@ -165,32 +165,6 @@
     {% endfor %}
   when: not zfs_pool_exists
 
-- name: List snapshots of {{ zfs_dataset_base }}
-  ansible.builtin.command:
-    argv:
-      - zfs
-      - list
-      - -t
-      - snapshot
-      - -o
-      - name
-      - -H
-      - -r
-      - "{{ zfs_dataset_base }}"
-  register: zfs_snapshot_list
-  changed_when: "false"
-  failed_when: "false"
-
-- name: Extract snapshot short names into a list
-  ansible.builtin.set_fact:
-    zfs_snapshots: >-
-      {{
-        zfs_snapshot_list.stdout_lines
-        | default([])
-        | map('regex_replace', '^.*@', '')
-        | list
-      }}
-
 - name: Update device symlinks
   ansible.builtin.command:
     argv:

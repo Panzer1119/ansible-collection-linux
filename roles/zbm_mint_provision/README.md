@@ -50,9 +50,12 @@ All variables live in `defaults/main.yml`.
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_id` (default: `linuxmint`)
-  - Boot environment path under `{{ pool_name }}/ROOT/`.
-  - Tip: you can include slashes to get an Ubuntu-installer-like layout, e.g. `mint/22.2` `{{ pool_name }}/ROOT/mint/22.2`.
+- `zfs_distro_name` (default: `mint`)
+  - Boot environment distro path under `{{ pool_name }}/ROOT/`.
+- `zfs_distro_version` (default: `22.2`)
+  - Boot environment version path under `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`.
+- `zfs_dataset_distro_base` (default: `{{ zfs_dataset_distro_base }}`)
+  - Base dataset for distro boot environments (mounted at `none`).
 - `zfs_dataset_base` (default: `{{ zfs_dataset_base }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
@@ -79,6 +82,11 @@ All variables live in `defaults/main.yml`.
 - `timezone` (default: `Europe/Berlin`)
   - Currently not applied by tasks (documented for completeness).
 
+### Post-provision packages
+
+- `chroot_extra_packages` (default: `[]`)
+  - Optional list of additional APT packages installed inside the chroot after all other steps.
+
 ### OS versions
 
 - `ubuntu_codename` (default: `noble`)
@@ -90,12 +98,13 @@ All variables live in `defaults/main.yml`.
 
 ## Snapshots
 
-The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones:
+The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones using the format:
 
-- `{{ pool_name }}/ROOT@post-debootstrap`
-- `{{ pool_name }}/ROOT@pre-mint-install`
-- `{{ pool_name }}/ROOT@post-mint-install`
-- `{{ pool_name }}/ROOT@pre-export`
+`YYYY-MM-dd-HHmmss-{{ zfs_distro_name }}-{{ zfs_distro_version }}-<suffix>`
+
+Example:
+
+`2026-01-17-142338-mint-22.3-post-20-install-base`
 
 These snapshots are useful as rollback points while iterating on provisioning.
 

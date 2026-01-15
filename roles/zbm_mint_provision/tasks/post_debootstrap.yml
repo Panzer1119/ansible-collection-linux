@@ -1,10 +1,5 @@
 ---
 - name: (Chroot) Install tools needed for Mint keyring
-  vars:
-    _snap_post_21_install_mint_base_re: '(^|.*-)post-21-install-mint-base$'
-    _snap_post_22_install_mint_cinnamon_re: '(^|.*-)post-22-install-mint-cinnamon$'
-    _snap_post_23_install_lightdm_re: '(^|.*-)post-23-install-lightdm$'
-    _snap_post_24_install_bloat_re: '(^|.*-)post-24-install-bloat$'
   ansible.builtin.apt:
     update_cache: true
     name:
@@ -13,8 +8,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 - name: (Chroot) Download Mint keyring
   ansible.builtin.get_url:
@@ -23,16 +16,12 @@
     mode: "0644"
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 - name: (Chroot) Install Mint keyring package
   ansible.builtin.apt:
     deb: /tmp/mintkey.deb
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 # ------------------------------------------------------------
 
@@ -47,8 +36,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 - name: (Chroot) Copy Mint apt preferences
   ansible.builtin.copy:
@@ -60,7 +47,6 @@
   become: true
   when: >-
     apt_sources == 'official'
-    and not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 - name: Derive mint base-files version (ubuntu + mint version)
   ansible.builtin.set_fact:
@@ -74,8 +60,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_21_install_mint_base_re) | list | length) > 0)
 
 - name: Snapshot after Mint base installation
   ansible.builtin.command:
@@ -83,7 +67,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-21-install-mint-base"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-21-install-mint-base"
 
 # ------------------------------------------------------------
 
@@ -96,8 +80,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_22_install_mint_cinnamon_re) | list | length) > 0)
 
 - name: Snapshot after Mint cinnamon installation
   ansible.builtin.command:
@@ -105,7 +87,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-22-install-mint-cinnamon"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-22-install-mint-cinnamon"
 
 # ------------------------------------------------------------
 
@@ -117,8 +99,6 @@
     vtype: select
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_23_install_lightdm_re) | list | length) > 0)
 
 - name: (Chroot) Install LightDM
   ansible.builtin.apt:
@@ -129,8 +109,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_23_install_lightdm_re) | list | length) > 0)
 
 - name: Snapshot after lightdm installation
   ansible.builtin.command:
@@ -138,7 +116,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-23-install-lightdm"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-23-install-lightdm"
 
 # ------------------------------------------------------------
 
@@ -173,8 +151,6 @@
     state: present
   delegate_to: "{{ chroot_path }}"
   become: true
-  when: >-
-    not ((zfs_snapshots | default([]) | select('match', _snap_post_24_install_bloat_re) | list | length) > 0)
 
 - name: Snapshot after bloat installation
   ansible.builtin.command:
@@ -182,5 +158,5 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-post-24-install-bloat"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-24-install-bloat"
 ...

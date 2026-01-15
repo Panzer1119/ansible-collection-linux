@@ -8,9 +8,13 @@ pool_part_num: "2"
 # If false, partition paths will be rendered as /dev/sda1.
 is_nvme: false
 
+# Live / Chroot Provisioning
 # Optional APT proxy URL (e.g. http://aptproxy.local:3142). When set, a proxy
 # config is written into the target system under /etc/apt/apt.conf.d/90proxy.
 apt_proxy: ""
+installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
+apt_sources: "official"          # Options: "official", "custom"
+chroot_path: "/mnt"
 
 # ZFS Configuration
 pool_name: "zroot"
@@ -88,6 +92,8 @@ ubuntu_codename: "noble"
 mint_codename: "zara"
 mint_version: "22.2.0"
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
+
+# Localization
 mint_timezone: "Europe/Berlin"
 mint_locales:
   default: "en_US.UTF-8"
@@ -101,9 +107,5 @@ mint_keyboard:
   options: ""
 skip_configuration: false
 
-installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
-apt_sources: "official"      # Options: "official", "custom"
-
-# Chroot Configuration
-chroot_path: "/mnt"
-...
+# Optional extra packages to install at the end of provisioning
+chroot_extra_packages: []

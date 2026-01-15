@@ -1,0 +1,91 @@
+---
+- name: Snapshot after initial creation
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-00-creation"
+
+- name: Bootstrap Ubuntu
+  ansible.builtin.import_tasks: install_debootstrap.yml
+  when: installation_method == 'debootstrap'
+
+- name: Install Live ISO SquashFS
+  ansible.builtin.import_tasks: install_squashfs.yml
+  when: installation_method == 'squashfs'
+
+- name: Snapshot after initial installation
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-10-initial-{{ installation_method }}"
+
+- name: Prepare chroot environment
+  ansible.builtin.import_tasks: prepare_chroot.yml
+
+- name: Snapshot after initial configuration
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-11-initial-config"
+
+- name: (Chroot) Install base system packages
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name:
+      - linux-generic
+      - dosfstools
+      - zfs-initramfs
+      - zfsutils-linux
+      - curl
+      - efibootmgr
+      - etckeeper
+    state: present
+  delegate_to: "{{ chroot_path }}"
+  become: true
+
+- name: Snapshot after base installation
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-20-install-base"
+
+- name: Post debootstrap steps
+  ansible.builtin.import_tasks: post_debootstrap.yml
+  when: installation_method == 'debootstrap'
+
+- name: Post squashfs steps
+  ansible.builtin.import_tasks: post_squashfs.yml
+  when: installation_method == 'squashfs'
+
+- name: Post installation steps
+  ansible.builtin.import_tasks: post_installation.yml
+
+- name: Setup ZFSBootMenu
+  ansible.builtin.import_tasks: setup_zfsbootmenu.yml
+
+- name: (Chroot) Install extra packages
+  ansible.builtin.apt:
+    update_cache: true
+    install_recommends: false
+    name: "{{ chroot_extra_packages }}"
+    state: present
+  delegate_to: "{{ chroot_path }}"
+  become: true
+  when: chroot_extra_packages | default([]) | length > 0
+
+- name: Snapshot before final export
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - snapshot
+      - -r
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-70-provision"

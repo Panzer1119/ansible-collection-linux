@@ -1,0 +1,30 @@
+---
+- name: Unmount EFI system partition
+  ansible.posix.mount:
+    path: "{{ chroot_path }}/boot/efi"
+    state: unmounted
+  ignore_errors: true
+
+- name: Unmount chroot filesystems
+  ansible.builtin.command:
+    argv:
+      - umount
+      - "-n"
+      - "-R"
+      - "{{ chroot_path }}"
+#  ansible.posix.mount:
+#    path: "{{ item }}"
+#    state: unmounted
+#  loop:
+#    - "{{ chroot_path }}/dev/pts"
+#    - "{{ chroot_path }}/dev"
+#    - "{{ chroot_path }}/proc"
+#    - "{{ chroot_path }}/sys"
+#    - "{{ chroot_path }}"
+
+- name: Export ZFS pool
+  ansible.builtin.command:
+    argv:
+      - zpool
+      - export
+      - "{{ pool_name }}"
