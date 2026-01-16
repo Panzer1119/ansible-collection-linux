@@ -88,7 +88,7 @@ All variables live in `defaults/main.yml`.
 - `ubuntu_codename` (default: `noble`)
   - Used for debootstrap.
 - `mint_codename` (default: `ansible_lsb.codename`, fallback: `zara`)
-  - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
+  - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list` (dataset naming uses `zfs_dataset_id`).
 - `mint_version` (default: `ansible_lsb.release`, fallback: `22.2.0`)
   - Used for Mint package version pinning in debootstrap installs. The default appends `.0` when the release is only two parts (e.g. `22.2` → `22.2.0`).
 - `mint_keyring_url`
