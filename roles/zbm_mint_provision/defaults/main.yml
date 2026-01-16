@@ -92,6 +92,7 @@ timezone: "Europe/Berlin"
 ubuntu_codename: "noble"
 mint_codename: "{{ (ansible_lsb | default({})).codename | default('zara') }}"
 mint_release: "{{ ((ansible_lsb | default({})).release | default('22.2')) }}"
+# Ensure base-files version pins include a three-part release (base-files expects X.Y.Z).
 mint_version: >-
   {{
     mint_release ~ '.0'
