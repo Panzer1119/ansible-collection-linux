@@ -15,7 +15,7 @@
   when: apt_proxy | default('') | length > 0
 
 - name: Install provisioning tools on Live ISO
-  apt:
+  ansible.builtin.apt:
     name: [ debootstrap, gdisk, zfsutils-linux, curl ]
     update_cache: false
 
