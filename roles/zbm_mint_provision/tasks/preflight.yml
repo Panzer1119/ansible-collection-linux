@@ -25,6 +25,6 @@
     pool_part_device: "{{ pool_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ pool_part_num }}"
 
 - name: Generate HostID
-  command: zgenhostid -f 0x00bab10c
+  ansible.builtin.command: zgenhostid -f 0x00bab10c
   args:
     creates: /etc/hostid
