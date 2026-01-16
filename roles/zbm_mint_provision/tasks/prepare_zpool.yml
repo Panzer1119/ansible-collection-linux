@@ -76,16 +76,6 @@
       canmount: "noauto"
   when: not zfs_pool_exists
 
-- name: Create additional datasets under {{ zfs_dataset_base }}
-  community.general.zfs:
-    name: "{{ zfs_dataset_base }}/{{ item.name }}"
-    state: present
-    extra_zfs_properties:
-      mountpoint: "{{ item.mountpoint | default('/' ~ item.name) }}"
-      canmount: "off"
-  loop: "{{ zfs_additional_datasets | default([]) }}"
-  when: not zfs_pool_exists
-
 - name: Create USERDATA container dataset {{ zfs_userdata_base }}
   community.general.zfs:
     name: "{{ zfs_userdata_base }}"
@@ -119,16 +109,6 @@
     zpool import -N -R {{ chroot_path }} {{ pool_name }}
   when: not zfs_pool_exists
 
-- name: Fix canmount of datasets under {{ zfs_dataset_base }}
-  ansible.builtin.command:
-    argv:
-      - zfs
-      - set
-      - "canmount={{ item.canmount | default('on') }}"
-      - "{{ zfs_dataset_base }}/{{ item.name }}"
-  loop: "{{ zfs_additional_datasets | default([]) }}"
-  when: not zfs_pool_exists
-
 - name: Fix canmount of datasets under {{ zfs_userdata_base }}
   ansible.builtin.command:
     argv:
@@ -142,12 +122,6 @@
 - name: Mount ZFS datasets
   shell: |
     zfs mount {{ zfs_dataset_base }}
-
-    {% for ds in (zfs_additional_datasets | default([])) %}
-    {% if ds.canmount is not defined or ds.canmount != "off" %}
-    zfs mount {{ zfs_dataset_base }}/{{ ds.name }}
-    {% endif %}
-    {% endfor %}
 
     {% for uds in (zfs_userdata_datasets | default([])) %}
     {% if uds.canmount is not defined or uds.canmount != "off" %}
