@@ -67,7 +67,7 @@
       "org.zfsbootmenu:commandline": "quiet splash"
   when: not zfs_pool_exists
 
-- name: Create boot environment dataset {{ zfs_dataset_base }}
+- name: Create primary boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
     name: "{{ zfs_dataset_base }}"
     state: present
