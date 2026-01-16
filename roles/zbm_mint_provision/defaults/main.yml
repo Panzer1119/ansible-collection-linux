@@ -92,11 +92,12 @@ timezone: "Europe/Berlin"
 # OS Versions (prefer ansible_lsb facts when available)
 ubuntu_codename: "noble"
 mint_codename: "{{ (ansible_lsb | default({})).codename | default('zara') }}"
+mint_release: "{{ ((ansible_lsb | default({})).release | default('22.2')) }}"
 mint_version: >-
   {{
-    ((ansible_lsb | default({})).release | default('22.2')) ~ '.0'
-    if ((ansible_lsb | default({})).release | default('22.2')) is match('^\\d+\\.\\d+$')
-    else ((ansible_lsb | default({})).release | default('22.2.0'))
+    mint_release ~ '.0'
+    if mint_release is match('^\\d+\\.\\d+$')
+    else mint_release
   }}
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
 
