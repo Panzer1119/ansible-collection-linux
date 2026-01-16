@@ -20,16 +20,14 @@ chroot_path: "/mnt"
 pool_name: "zroot"
 # Boot environment identifier.
 # This role will create a boot environment dataset:
-#   {{ pool_name }}/ROOT/{{ zfs_distro_codename }}
+#   {{ pool_name }}/ROOT/{{ mint_codename }}
 # If you want a different naming scheme (ROOT/<codename>), set
-# zfs_distro_codename accordingly (e.g. "linuxmint").
+# mint_codename accordingly (e.g. "linuxmint").
 # Derived from ansible_lsb facts when available.
-zfs_distro_codename: "{{ (ansible_lsb | default({})).id | default('linuxmint') }}"
 
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
-zfs_dataset_distro_base: "{{ pool_name }}/ROOT"
-zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_codename }}"
+zfs_dataset_base: "{{ pool_name }}/ROOT/{{ mint_codename }}"
 
 #zfs_deduplication: "on"
 zfs_compression: "zstd"

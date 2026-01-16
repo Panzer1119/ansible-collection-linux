@@ -67,15 +67,6 @@
       "org.zfsbootmenu:commandline": "quiet splash"
   when: not zfs_pool_exists
 
-- name: Create boot environment parent dataset {{ zfs_dataset_distro_base }}
-  community.general.zfs:
-    name: "{{ zfs_dataset_distro_base }}"
-    state: present
-    extra_zfs_properties:
-      mountpoint: "none"
-      canmount: "off"
-  when: not zfs_pool_exists
-
 - name: Create boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
     name: "{{ zfs_dataset_base }}"
