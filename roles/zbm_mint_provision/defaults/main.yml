@@ -20,17 +20,16 @@ chroot_path: "/mnt"
 pool_name: "zroot"
 # Boot environment identifier.
 # This role will create a boot environment dataset:
-#   {{ pool_name }}/ROOT/{{ zfs_distro_name }}/{{ zfs_distro_version }}
-# If you want a more Ubuntu-installer-like layout (ROOT/<os>/<release>), set
-# zfs_distro_name and zfs_distro_version accordingly (e.g. "mint", and "22.2").
+#   {{ pool_name }}/ROOT/{{ zfs_distro_codename }}
+# If you want a different naming scheme (ROOT/<codename>), set
+# zfs_distro_codename accordingly (e.g. "linuxmint").
 # Derived from ansible_lsb facts when available.
-zfs_distro_name: "{{ ansible_lsb.id | default('mint') }}"
-zfs_distro_version: "{{ ansible_lsb.release | default('22.2') }}"
+zfs_distro_codename: "{{ (ansible_lsb | default({})).id | default('linuxmint') }}"
 
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
-zfs_dataset_distro_base: "{{ pool_name }}/ROOT/{{ zfs_distro_name }}"
-zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}"
+zfs_dataset_distro_base: "{{ pool_name }}/ROOT"
+zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_codename }}"
 
 #zfs_deduplication: "on"
 zfs_compression: "zstd"
@@ -91,12 +90,12 @@ timezone: "Europe/Berlin"
 # OS Versions
 # OS Versions (prefer ansible_lsb facts when available)
 ubuntu_codename: "noble"
-mint_codename: "{{ ansible_lsb.codename | default('zara') }}"
+mint_codename: "{{ (ansible_lsb | default({})).codename | default('zara') }}"
 mint_version: >-
   {{
-    (ansible_lsb.release | default('22.2')) ~ '.0'
-    if (ansible_lsb.release | default('22.2')) is match('^\\d+\\.\\d+$')
-    else (ansible_lsb.release | default('22.2.0'))
+    ((ansible_lsb | default({})).release | default('22.2')) ~ '.0'
+    if ((ansible_lsb | default({})).release | default('22.2')) is match('^\\d+\\.\\d+$')
+    else ((ansible_lsb | default({})).release | default('22.2.0'))
   }}
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
 

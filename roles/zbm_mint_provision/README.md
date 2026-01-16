@@ -50,13 +50,11 @@ All variables live in `defaults/main.yml`.
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_distro_name` (default: `ansible_lsb.id`, fallback: `mint`)
-  - Boot environment distro path under `{{ pool_name }}/ROOT/`.
-- `zfs_distro_version` (default: `ansible_lsb.release`, fallback: `22.2`)
-  - Boot environment version path under `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`.
-- `zfs_dataset_distro_base` (default: `{{ pool_name }}/ROOT/{{ zfs_distro_name }}`)
+- `zfs_distro_codename` (default: `ansible_lsb.id`, fallback: `linuxmint`)
+  - Boot environment dataset name under `{{ pool_name }}/ROOT/`.
+- `zfs_dataset_distro_base` (default: `{{ pool_name }}/ROOT`)
   - Base dataset for distro boot environments (mounted at `none`).
-- `zfs_dataset_base` (default: `{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}`)
+- `zfs_dataset_base` (default: `{{ zfs_dataset_distro_base }}/{{ zfs_distro_codename }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
   - Additional datasets created under `{{ zfs_dataset_base }}`.
@@ -102,11 +100,11 @@ All variables live in `defaults/main.yml`.
 
 The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones using the format:
 
-`YYYY-MM-dd-HHmmss-{{ zfs_distro_name }}-{{ zfs_distro_version }}-<suffix>`
+`YYYY-MM-dd-HHmmss-{{ zfs_distro_codename }}-{{ mint_version }}-<suffix>`
 
 Example:
 
-`2026-01-17-142338-mint-22.3-post-20-install-base`
+`2026-01-17-142338-linuxmint-22.3-post-20-install-base`
 
 These snapshots are useful as rollback points while iterating on provisioning.
 
@@ -121,10 +119,10 @@ These snapshots are useful as rollback points while iterating on provisioning.
     - role: panzer1119.linux.zbm_mint_provision
       vars:
         pool_name: zroot
-        # Ubuntu-installer-like boot environment path
-        zfs_id: "mint/22.2"
+        # Boot environment dataset name
+        zfs_distro_codename: "linuxmint"
 
-        # Additional datasets under zroot/ROOT/mint/22.2
+        # Additional datasets under zroot/ROOT/linuxmint
         zfs_additional_datasets:
           - { name: "srv" }
           - { name: "usr", canmount: "off" }

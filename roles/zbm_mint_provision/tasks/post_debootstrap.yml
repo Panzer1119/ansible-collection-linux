@@ -67,7 +67,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-21-install-mint-base"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_codename }}-{{ mint_version }}-post-21-install-mint-base"
 
 # ------------------------------------------------------------
 
@@ -87,7 +87,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-22-install-mint-cinnamon"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_codename }}-{{ mint_version }}-post-22-install-mint-cinnamon"
 
 # ------------------------------------------------------------
 
@@ -116,7 +116,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-23-install-lightdm"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_codename }}-{{ mint_version }}-post-23-install-lightdm"
 
 # ------------------------------------------------------------
 
@@ -158,5 +158,5 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_name }}-{{ zfs_distro_version }}-post-24-install-bloat"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_distro_codename }}-{{ mint_version }}-post-24-install-bloat"
 ...
