@@ -1,6 +1,6 @@
 ---
 - name: Ensure we are in UEFI mode
-  stat:
+  ansible.builtin.stat:
     path: /sys/firmware/efi/efivars
   register: efi_check
   failed_when: not efi_check.stat.exists
