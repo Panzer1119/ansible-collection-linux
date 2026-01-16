@@ -5,7 +5,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ mint_codename }}-{{ mint_version }}-post-00-creation"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_dataset_id }}-{{ mint_version }}-post-00-creation"
 
 - name: Bootstrap Ubuntu
   ansible.builtin.import_tasks: install_debootstrap.yml
@@ -21,7 +21,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ mint_codename }}-{{ mint_version }}-post-10-initial-{{ installation_method }}"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_dataset_id }}-{{ mint_version }}-post-10-initial-{{ installation_method }}"
 
 - name: Prepare chroot environment
   ansible.builtin.import_tasks: prepare_chroot.yml
@@ -32,7 +32,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ mint_codename }}-{{ mint_version }}-post-11-initial-config"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_dataset_id }}-{{ mint_version }}-post-11-initial-config"
 
 - name: (Chroot) Install base system packages
   ansible.builtin.apt:
@@ -56,7 +56,7 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ mint_codename }}-{{ mint_version }}-post-20-install-base"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_dataset_id }}-{{ mint_version }}-post-20-install-base"
 
 - name: Post debootstrap steps
   ansible.builtin.import_tasks: post_debootstrap.yml
@@ -88,4 +88,4 @@
       - zfs
       - snapshot
       - -r
-      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ mint_codename }}-{{ mint_version }}-post-70-provision"
+      - "{{ pool_name }}@{{ lookup('pipe', 'date -u +%Y-%m-%d-%H%M%S') }}-{{ zfs_dataset_id }}-{{ mint_version }}-post-70-provision"

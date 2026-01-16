@@ -50,7 +50,9 @@ All variables live in `defaults/main.yml`.
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_dataset_base` (default: `{{ pool_name }}/ROOT/{{ mint_codename }}`)
+- `zfs_dataset_id` (default: `ansible_lsb.id`, fallback: `linuxmint`)
+  - Used to name the boot environment dataset under `{{ pool_name }}/ROOT/`.
+- `zfs_dataset_base` (default: `{{ pool_name }}/ROOT/{{ zfs_dataset_id }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
   - Additional datasets created under `{{ zfs_dataset_base }}`.
@@ -86,7 +88,7 @@ All variables live in `defaults/main.yml`.
 - `ubuntu_codename` (default: `noble`)
   - Used for debootstrap.
 - `mint_codename` (default: `ansible_lsb.codename`, fallback: `zara`)
-  - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list` and name the boot environment dataset.
+  - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
 - `mint_version` (default: `ansible_lsb.release`, fallback: `22.2.0`)
   - Used for Mint package version pinning in debootstrap installs. The default appends `.0` when the release is only two parts (e.g. `22.2` → `22.2.0`).
 - `mint_keyring_url`
@@ -96,11 +98,11 @@ All variables live in `defaults/main.yml`.
 
 The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones using the format:
 
-`YYYY-MM-dd-HHmmss-{{ mint_codename }}-{{ mint_version }}-<suffix>`
+`YYYY-MM-dd-HHmmss-{{ zfs_dataset_id }}-{{ mint_version }}-<suffix>`
 
 Example:
 
-`2026-01-17-142338-zara-22.3-post-20-install-base`
+`2026-01-17-142338-linuxmint-22.3-post-20-install-base`
 
 These snapshots are useful as rollback points while iterating on provisioning.
 
@@ -115,7 +117,7 @@ These snapshots are useful as rollback points while iterating on provisioning.
     - role: panzer1119.linux.zbm_mint_provision
       vars:
         pool_name: zroot
-        # Additional datasets under zroot/ROOT/{{ mint_codename }}
+        # Additional datasets under zroot/ROOT/{{ zfs_dataset_id }}
         zfs_additional_datasets:
           - { name: "srv" }
           - { name: "usr", canmount: "off" }
