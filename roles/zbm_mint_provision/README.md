@@ -51,7 +51,7 @@ All variables live in `defaults/main.yml`.
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
 - `zfs_dataset_id` (default: `ansible_lsb.id`, fallback: `linuxmint`)
-  - Used to name the boot environment dataset under `{{ pool_name }}/ROOT/` (lowercase distro ID format).
+  - Used to name the boot environment dataset under `{{ pool_name }}/ROOT/` (case preserved).
 - `zfs_dataset_base` (default: `{{ pool_name }}/ROOT/{{ zfs_dataset_id }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
