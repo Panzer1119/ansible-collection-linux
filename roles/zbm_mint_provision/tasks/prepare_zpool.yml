@@ -67,16 +67,7 @@
       "org.zfsbootmenu:commandline": "quiet splash"
   when: not zfs_pool_exists
 
-- name: Create boot environment parent dataset {{ zfs_dataset_distro_base }}
-  community.general.zfs:
-    name: "{{ zfs_dataset_distro_base }}"
-    state: present
-    extra_zfs_properties:
-      mountpoint: "none"
-      canmount: "off"
-  when: not zfs_pool_exists
-
-- name: Create boot environment dataset {{ zfs_dataset_base }}
+- name: Create primary boot environment dataset {{ zfs_dataset_base }}
   community.general.zfs:
     name: "{{ zfs_dataset_base }}"
     state: present
@@ -164,32 +155,6 @@
     {% endif %}
     {% endfor %}
   when: not zfs_pool_exists
-
-- name: List snapshots of {{ zfs_dataset_base }}
-  ansible.builtin.command:
-    argv:
-      - zfs
-      - list
-      - -t
-      - snapshot
-      - -o
-      - name
-      - -H
-      - -r
-      - "{{ zfs_dataset_base }}"
-  register: zfs_snapshot_list
-  changed_when: "false"
-  failed_when: "false"
-
-- name: Extract snapshot short names into a list
-  ansible.builtin.set_fact:
-    zfs_snapshots: >-
-      {{
-        zfs_snapshot_list.stdout_lines
-        | default([])
-        | map('regex_replace', '^.*@', '')
-        | list
-      }}
 
 - name: Update device symlinks
   ansible.builtin.command:

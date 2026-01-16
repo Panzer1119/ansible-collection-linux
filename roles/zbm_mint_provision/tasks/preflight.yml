@@ -1,0 +1,30 @@
+---
+- name: Ensure we are in UEFI mode
+  ansible.builtin.stat:
+    path: /sys/firmware/efi/efivars
+  register: efi_check
+  failed_when: not efi_check.stat.exists
+
+- name: Configure APT proxy on Live ISO (optional)
+  ansible.builtin.template:
+    src: 90proxy.j2
+    dest: /etc/apt/apt.conf.d/90proxy
+    owner: root
+    group: root
+    mode: '0644'
+  when: apt_proxy | default('') | length > 0
+
+- name: Install provisioning tools on Live ISO
+  ansible.builtin.apt:
+    name: [ debootstrap, gdisk, zfsutils-linux, curl ]
+    update_cache: false
+
+- name: Derive partition device paths
+  ansible.builtin.set_fact:
+    boot_part_device: "{{ boot_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ boot_part_num }}"
+    pool_part_device: "{{ pool_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ pool_part_num }}"
+
+- name: Generate HostID
+  ansible.builtin.command: zgenhostid -f 0x00bab10c
+  args:
+    creates: /etc/hostid

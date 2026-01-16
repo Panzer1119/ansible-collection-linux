@@ -50,10 +50,9 @@ All variables live in `defaults/main.yml`.
 
 - `pool_name` (default: `zroot`)
   - Name of the ZFS pool.
-- `zfs_id` (default: `linuxmint`)
-  - Boot environment path under `{{ pool_name }}/ROOT/`.
-  - Tip: you can include slashes to get an Ubuntu-installer-like layout, e.g. `mint/22.2` `{{ pool_name }}/ROOT/mint/22.2`.
-- `zfs_dataset_base` (default: `{{ zfs_dataset_base }}`)
+- `zfs_dataset_id` (default: `ansible_lsb.id`, fallback: `linuxmint`)
+  - Used to name the boot environment dataset under `{{ pool_name }}/ROOT/` (lowercased).
+- `zfs_dataset_base` (default: `{{ pool_name }}/ROOT/{{ zfs_dataset_id }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
 - `zfs_additional_datasets` (list)
   - Additional datasets created under `{{ zfs_dataset_base }}`.
@@ -79,23 +78,31 @@ All variables live in `defaults/main.yml`.
 - `timezone` (default: `Europe/Berlin`)
   - Currently not applied by tasks (documented for completeness).
 
+### Post-provision packages
+
+- `chroot_extra_packages` (default: `[]`)
+  - Optional list of additional APT packages installed inside the chroot after all other steps.
+
 ### OS versions
 
 - `ubuntu_codename` (default: `noble`)
   - Used for debootstrap.
-- `mint_codename` (default: `zara`)
+- `mint_codename` (default: `ansible_lsb.codename`, fallback: `zara`)
   - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
+- `mint_version` (default: `ansible_lsb.release`, fallback: `22.2`)
+  - Used for Mint package version pinning in debootstrap installs. The fallback `22.2` (and any other two-part release like `22.2`) has `.0` appended, resulting in `22.2.0`.
 - `mint_keyring_url`
   - URL to the Linux Mint keyring `.deb` installed inside the chroot.
 
 ## Snapshots
 
-The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones:
+The role creates **recursive** snapshots of `{{ pool_name }}/ROOT` at major milestones using the format:
 
-- `{{ pool_name }}/ROOT@post-debootstrap`
-- `{{ pool_name }}/ROOT@pre-mint-install`
-- `{{ pool_name }}/ROOT@post-mint-install`
-- `{{ pool_name }}/ROOT@pre-export`
+`YYYY-MM-dd-HHmmss-{{ zfs_dataset_id }}-{{ mint_version }}-<suffix>`
+
+Example:
+
+`2026-01-17-142338-linuxmint-22.3-post-20-install-base`
 
 These snapshots are useful as rollback points while iterating on provisioning.
 
@@ -110,10 +117,7 @@ These snapshots are useful as rollback points while iterating on provisioning.
     - role: panzer1119.linux.zbm_mint_provision
       vars:
         pool_name: zroot
-        # Ubuntu-installer-like boot environment path
-        zfs_id: "mint/22.2"
-
-        # Additional datasets under zroot/ROOT/mint/22.2
+        # Additional datasets under zroot/ROOT/{{ zfs_dataset_id }}
         zfs_additional_datasets:
           - { name: "srv" }
           - { name: "usr", canmount: "off" }

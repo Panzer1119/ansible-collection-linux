@@ -8,24 +8,29 @@ pool_part_num: "2"
 # If false, partition paths will be rendered as /dev/sda1.
 is_nvme: false
 
+# Live / Chroot Provisioning
 # Optional APT proxy URL (e.g. http://aptproxy.local:3142). When set, a proxy
 # config is written into the target system under /etc/apt/apt.conf.d/90proxy.
 apt_proxy: ""
+installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
+apt_sources: "official"          # Options: "official", "custom"
+chroot_path: "/mnt"
 
 # ZFS Configuration
 pool_name: "zroot"
 # Boot environment identifier.
 # This role will create a boot environment dataset:
-#   {{ pool_name }}/ROOT/{{ zfs_distro_name }}/{{ zfs_distro_version }}
-# If you want a more Ubuntu-installer-like layout (ROOT/<os>/<release>), set
-# zfs_distro_name and zfs_distro_version accordingly (e.g. "mint", and "22.2").
-zfs_distro_name: "mint"
-zfs_distro_version: "22.2"
+#   {{ pool_name }}/ROOT/{{ zfs_dataset_id }}
+# If you want a different naming scheme (ROOT/<id>), set
+# zfs_dataset_id accordingly (e.g. "linuxmint").
+# Derived from ansible_lsb facts when available (id is the distro ID; codename is the release codename, while release is the version number).
+# Uses ansible_lsb.id lowercased. The fallback assumes Linux Mint; override for
+# IDs like "Ubuntu" or "Debian" if you need a different dataset name.
+zfs_dataset_id: "{{ ((ansible_lsb | default({})).id | default('linuxmint')) | lower }}"
 
 # Base dataset prefix under which additional datasets are created.
 # Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
-zfs_dataset_distro_base: "{{ pool_name }}/ROOT/{{ zfs_distro_name }}"
-zfs_dataset_base: "{{ zfs_dataset_distro_base }}/{{ zfs_distro_version }}"
+zfs_dataset_base: "{{ pool_name }}/ROOT/{{ zfs_dataset_id }}"
 
 #zfs_deduplication: "on"
 zfs_compression: "zstd"
@@ -83,11 +88,20 @@ default_user_name: "panzer1119"
 default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
 
-# OS Versions
+# OS Versions (prefer ansible_lsb facts when available)
 ubuntu_codename: "noble"
-mint_codename: "zara"
-mint_version: "22.2.0"
+mint_codename: "{{ (ansible_lsb | default({})).codename | default('zara') }}"
+mint_release: "{{ ((ansible_lsb | default({})).release | default('22.2')) }}"
+# Ensure base-files version pins include a three-part release (base-files expects X.Y.Z).
+mint_version: >-
+  {{
+    mint_release ~ '.0'
+    if mint_release is match('^\\d+\\.\\d+$')
+    else mint_release
+  }}
 mint_keyring_url: "http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb"
+
+# Localization
 mint_timezone: "Europe/Berlin"
 mint_locales:
   default: "en_US.UTF-8"
@@ -101,9 +115,5 @@ mint_keyboard:
   options: ""
 skip_configuration: false
 
-installation_method: "squashfs"  # Options: "squashfs", "debootstrap"
-apt_sources: "official"      # Options: "official", "custom"
-
-# Chroot Configuration
-chroot_path: "/mnt"
-...
+# Optional extra packages to install at the end of provisioning
+chroot_extra_packages: []
