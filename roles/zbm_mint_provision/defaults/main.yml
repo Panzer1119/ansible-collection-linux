@@ -88,7 +88,6 @@ default_user_name: "panzer1119"
 default_user_password: "password" # Use a hashed password in production
 timezone: "Europe/Berlin"
 
-# OS Versions
 # OS Versions (prefer ansible_lsb facts when available)
 ubuntu_codename: "noble"
 mint_codename: "{{ (ansible_lsb | default({})).codename | default('zara') }}"
