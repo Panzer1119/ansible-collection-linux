@@ -24,8 +24,9 @@ pool_name: "zroot"
 # If you want a different naming scheme (ROOT/<id>), set
 # zfs_dataset_id accordingly (e.g. "linuxmint").
 # Derived from ansible_lsb facts when available (id is the distro ID, codename is the release).
-# The fallback assumes Linux Mint (lowercase distro ID format); override for IDs
-# like "ubuntu" or "debian" if you need a different dataset name.
+# Uses ansible_lsb.id as-is (case preserved). The fallback assumes Linux Mint;
+# override for IDs like "Ubuntu" or "Debian" or apply | lower in your playbook
+# if you want lowercase dataset names.
 zfs_dataset_id: "{{ (ansible_lsb | default({})).id | default('linuxmint') }}"
 
 # Base dataset prefix under which additional datasets are created.
