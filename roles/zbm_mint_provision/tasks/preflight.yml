@@ -20,7 +20,7 @@
     update_cache: false
 
 - name: Derive partition device paths
-  set_fact:
+  ansible.builtin.set_fact:
     boot_part_device: "{{ boot_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ boot_part_num }}"
     pool_part_device: "{{ pool_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ pool_part_num }}"
 
