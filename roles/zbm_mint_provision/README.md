@@ -89,8 +89,8 @@ All variables live in `defaults/main.yml`.
   - Used for debootstrap.
 - `mint_codename` (default: `ansible_lsb.codename`, fallback: `zara`)
   - Used to render the chroot APT sources in `/mnt/etc/apt/sources.list`.
-- `mint_version` (default: `ansible_lsb.release`, fallback: `22.2.0`)
-  - Used for Mint package version pinning in debootstrap installs. The default appends `.0` when the release is only two parts (e.g. `22.2` → `22.2.0`).
+- `mint_version` (default: `ansible_lsb.release`, fallback: `22.2`)
+  - Used for Mint package version pinning in debootstrap installs. The fallback `22.2` (and any other two-part release like `22.2`) has `.0` appended, resulting in `22.2.0`.
 - `mint_keyring_url`
   - URL to the Linux Mint keyring `.deb` installed inside the chroot.
 
