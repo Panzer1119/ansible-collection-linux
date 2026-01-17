@@ -60,13 +60,15 @@ All variables live in `defaults/main.yml`.
     - `name` (required): relative dataset path under `zfs_dataset_base` (e.g. `var/log`)
     - `mountpoint` (optional): defaults to `/<name>`
     - `canmount` (optional): defaults to `on` (use `off` for container datasets like `var`)
+  - Warning: ZFSBootMenu expects boot environments to be a single dataset. Leave this
+    list empty unless you explicitly want sub-datasets.
 - `zfs_userdata_base` (default: `{{ pool_name }}/USERDATA`)
   - Container dataset for users (created with `canmount=off`, `mountpoint=none`).
 - `zfs_userdata_datasets` (list)
   - Datasets created under `{{ zfs_userdata_base }}`.
   - Same schema as above (defaults to `/home/<name>`).
 
-> Recommendation: split datasets only where you plan to snapshot/rollback independently.
+> Recommendation: split datasets only where you plan to snapshot/roll back independently.
 > Good candidates are `/var/log`, `/var/lib`, `/srv`, and `/home`. Very fine-grained splits under `/var/lib/*`
 > are optional and mostly useful if you frequently roll back system datasets.
 
