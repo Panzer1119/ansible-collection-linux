@@ -48,6 +48,7 @@ zfs_compression: "zstd"
 # - Keep this list fairly small; add deeper splits only if you snapshot/rollback
 #   them independently.
 zfs_additional_datasets: []
+  # Example items (uncomment to enable):
   # Ubuntu-style containers
   # - name: "usr"
   #   canmount: "off"
