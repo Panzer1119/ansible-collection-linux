@@ -29,7 +29,7 @@ pool_name: "zroot"
 zfs_dataset_id: "{{ ((ansible_lsb | default({})).id | default('linuxmint')) | lower }}"
 
 # Boot environment dataset path (mounted at /) under which additional datasets are created.
-# Final dataset name will be: {{ zfs_dataset_base }}/<item.name>
+# Final dataset name will be: <pool_name>/ROOT/<zfs_dataset_id>/<item.name>
 zfs_dataset_base: "{{ pool_name }}/ROOT/{{ zfs_dataset_id }}"
 
 #zfs_deduplication: "on"
