@@ -68,7 +68,7 @@ All variables live in `defaults/main.yml`.
   - Datasets created under `{{ zfs_userdata_base }}`.
   - Same schema as above (defaults to `/home/<name>`).
 
-> Recommendation: split datasets only where you plan to snapshot/rollback independently.
+> Recommendation: split datasets only where you plan to snapshot/roll back independently.
 > Good candidates are `/var/log`, `/var/lib`, `/srv`, and `/home`. Very fine-grained splits under `/var/lib/*`
 > are optional and mostly useful if you frequently roll back system datasets.
 

@@ -48,31 +48,31 @@ zfs_compression: "zstd"
 # - Keep this list fairly small; add deeper splits only if you snapshot/rollback
 #   them independently.
 zfs_additional_datasets: []
-  # Example items (uncomment to enable):
-  # Ubuntu-style containers
-  # - name: "usr"
-  #   canmount: "off"
-  # - name: "usr/local"
-  # - name: "var"
-  #   canmount: "off"
-  #
-  # Commonly useful splits
-  # - name: "srv"
-  # - name: "var/log"
-  # - name: "var/lib"
-  #
-  # Mint/Ubuntu specific state (optional; safe defaults)
-  # - name: "var/lib/AccountsService"
-  # - name: "var/lib/NetworkManager"
-  # - name: "var/lib/apt"
-  # - name: "var/lib/dpkg"
-  #
-  # Other optional locations
-  # - name: "var/games"
-  # - name: "var/mail"
-  # - name: "var/snap"
-  # - name: "var/spool"
-  # - name: "var/www"
+# Example items (uncomment to enable):
+#   # Ubuntu-style containers
+#   - name: "usr"
+#     canmount: "off"
+#   - name: "usr/local"
+#   - name: "var"
+#     canmount: "off"
+#
+#   # Commonly useful splits
+#   - name: "srv"
+#   - name: "var/log"
+#   - name: "var/lib"
+#
+#   # Mint/Ubuntu specific state (optional; safe defaults)
+#   - name: "var/lib/AccountsService"
+#   - name: "var/lib/NetworkManager"
+#   - name: "var/lib/apt"
+#   - name: "var/lib/dpkg"
+#
+#   # Other optional locations
+#   - name: "var/games"
+#   - name: "var/mail"
+#   - name: "var/snap"
+#   - name: "var/spool"
+#   - name: "var/www"
 
 # User/root datasets (created at pool level by default)
 # This mirrors Ubuntu's USERDATA concept.
