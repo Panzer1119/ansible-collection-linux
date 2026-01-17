@@ -54,11 +54,23 @@ All variables live in `defaults/main.yml`.
   - Used to name the boot environment dataset under `{{ pool_name }}/ROOT/` (lowercased).
 - `zfs_dataset_base` (default: `{{ pool_name }}/ROOT/{{ zfs_dataset_id }}`)
   - Base dataset for the boot environment (mounted at `/` in the target system).
+- `zfs_additional_datasets` (list)
+  - Additional datasets created under `{{ zfs_dataset_base }}`.
+  - Schema per item:
+    - `name` (required): relative dataset path under `zfs_dataset_base` (e.g. `var/log`)
+    - `mountpoint` (optional): defaults to `/<name>`
+    - `canmount` (optional): defaults to `on` (use `off` for container datasets like `var`)
+  - Warning: ZFSBootMenu expects boot environments to be a single dataset. Leave this
+    list empty unless you explicitly want sub-datasets.
 - `zfs_userdata_base` (default: `{{ pool_name }}/USERDATA`)
   - Container dataset for users (created with `canmount=off`, `mountpoint=none`).
 - `zfs_userdata_datasets` (list)
   - Datasets created under `{{ zfs_userdata_base }}`.
   - Same schema as above (defaults to `/home/<name>`).
+
+> Recommendation: split datasets only where you plan to snapshot/rollback independently.
+> Good candidates are `/var/log`, `/var/lib`, `/srv`, and `/home`. Very fine-grained splits under `/var/lib/*`
+> are optional and mostly useful if you frequently roll back system datasets.
 
 ### System configuration
 
@@ -107,6 +119,19 @@ These snapshots are useful as rollback points while iterating on provisioning.
     - role: panzer1119.linux.zbm_mint_provision
       vars:
         pool_name: zroot
+        # Additional datasets under zroot/ROOT/{{ zfs_dataset_id }}
+        zfs_additional_datasets:
+          - { name: "srv" }
+          - { name: "usr", canmount: "off" }
+          - { name: "usr/local" }
+          - { name: "var", canmount: "off" }
+          - { name: "var/log" }
+          - { name: "var/lib" }
+          - { name: "var/lib/AccountsService" }
+          - { name: "var/lib/NetworkManager" }
+          - { name: "var/lib/apt" }
+          - { name: "var/lib/dpkg" }
+
         # User datasets under zroot/USERDATA
         zfs_userdata_datasets:
           - { name: "panzer1119" }
