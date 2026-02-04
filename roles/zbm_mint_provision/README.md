@@ -88,7 +88,7 @@ All variables live in `defaults/main.yml`.
     - `direct`: Uses `efibootmgr` directly to create boot entries for ZFSBootMenu.
     - `refind`: Installs and configures rEFInd boot manager, which then loads ZFSBootMenu.
   - When using `refind`, the role will:
-    - Create a symlink from `/proc/self/mounts` to `/etc/mtab`
+    - Create a symlink from `/proc/self/mounts` to `/etc/mtab` (required by refind-install to detect mounted filesystems)
     - Install the `refind` package
     - Run `refind-install` to set up rEFInd
     - Create a custom `refind_linux.conf` in `/boot/efi/EFI/ZBM/` with ZBM-specific boot options
