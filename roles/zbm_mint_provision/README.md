@@ -80,6 +80,19 @@ All variables live in `defaults/main.yml`.
 - `timezone` (default: `Europe/Berlin`)
   - Currently not applied by tasks (documented for completeness).
 
+### EFI boot configuration
+
+- `efi_boot_method` (default: `direct`)
+  - Specifies how EFI boot entries should be configured.
+  - Options:
+    - `direct`: Uses `efibootmgr` directly to create boot entries for ZFSBootMenu.
+    - `refind`: Installs and configures rEFInd boot manager, which then loads ZFSBootMenu.
+  - When using `refind`, the role will:
+    - Create a symlink from `/proc/self/mounts` to `/etc/mtab`
+    - Install the `refind` package
+    - Run `refind-install` to set up rEFInd
+    - Create a custom `refind_linux.conf` in `/boot/efi/EFI/ZBM/` with ZBM-specific boot options
+
 ### Post-provision packages
 
 - `chroot_extra_packages` (default: `[]`)
@@ -136,6 +149,23 @@ These snapshots are useful as rollback points while iterating on provisioning.
         zfs_userdata_datasets:
           - { name: "panzer1119" }
           - { name: "root", mountpoint: "/root" }
+```
+
+### Using rEFInd boot manager
+
+To configure the system to use rEFInd instead of direct efibootmgr entries:
+
+```yaml
+- name: Provision Linux Mint on ZFS with ZFSBootMenu and rEFInd
+  hosts: live_iso
+  become: true
+  gather_facts: false
+  roles:
+    - role: panzer1119.linux.zbm_mint_provision
+      vars:
+        efi_boot_method: refind
+        pool_name: zroot
+        # ... other variables as needed ...
 ```
 
 ## Notes

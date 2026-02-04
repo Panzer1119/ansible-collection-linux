@@ -118,3 +118,8 @@ skip_configuration: false
 
 # Optional extra packages to install at the end of provisioning
 chroot_extra_packages: []
+
+# EFI Boot Configuration
+# Options: "direct" (uses efibootmgr directly) or
+# "refind" (uses rEFInd boot manager)
+efi_boot_method: "direct"
