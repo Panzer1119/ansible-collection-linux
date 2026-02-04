@@ -88,6 +88,8 @@
         dest: "{{ chroot_path }}/etc/mtab"
         state: link
         force: true
+      delegate_to: "{{ chroot_path }}"
+      become: true
 
     - name: (Chroot) Install refind
       ansible.builtin.apt:
@@ -107,6 +109,8 @@
       ansible.builtin.file:
         path: "{{ chroot_path }}/boot/refind_linux.conf"
         state: absent
+      delegate_to: "{{ chroot_path }}"
+      become: true
 
     - name: (Chroot) Create ZBM-specific refind_linux.conf
       ansible.builtin.copy:
@@ -115,4 +119,6 @@
           "Boot default"  "quiet loglevel=0 zbm.skip"
           "Boot to menu"  "quiet loglevel=0 zbm.show"
         mode: '0644'
+      delegate_to: "{{ chroot_path }}"
+      become: true
 ...
