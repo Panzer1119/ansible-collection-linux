@@ -36,6 +36,7 @@
     src: "{{ zbm_efi_primary_path }}"
     dest: "{{ zbm_efi_backup_path }}"
     remote_src: true
+    mode: '0644'
 
 - name: Ensure efivarfs is mounted for chroot
   ansible.posix.mount:
