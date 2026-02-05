@@ -45,9 +45,9 @@
   ansible.builtin.assert:
     that:
       - secure_boot_key_stat.stat.exists
-      - secure_boot_key_mode & secure_boot_key_owner_read_mask != 0
-      - secure_boot_key_mode & secure_boot_key_group_mask == 0
-      - secure_boot_key_mode & secure_boot_key_other_mask == 0
+      - (secure_boot_key_mode & secure_boot_key_owner_read_mask) != 0
+      - (secure_boot_key_mode & secure_boot_key_group_mask) == 0
+      - (secure_boot_key_mode & secure_boot_key_other_mask) == 0
       - secure_boot_key_stat.stat.uid == 0
     fail_msg: >-
       secure_boot_sign_key_path must exist and be readable only by root
