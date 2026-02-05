@@ -19,6 +19,59 @@
     name: [ debootstrap, gdisk, zfsutils-linux, curl ]
     update_cache: false
 
+- name: Install secure boot signing tools on Live ISO
+  ansible.builtin.apt:
+    name: [ sbsigntool ]
+    update_cache: false
+  when: secure_boot_sign | bool
+
+- name: Ensure secure boot signing key and cert are set
+  ansible.builtin.assert:
+    that:
+      - secure_boot_sign_key_path | default('') | length > 0
+      - secure_boot_sign_cert_path | default('') | length > 0
+    fail_msg: >-
+      secure_boot_sign is enabled, but secure_boot_sign_key_path or
+      secure_boot_sign_cert_path is not set.
+  when: secure_boot_sign | bool
+
+- name: Check secure boot signing key
+  ansible.builtin.stat:
+    path: "{{ secure_boot_sign_key_path }}"
+  register: secure_boot_key_stat
+  when: secure_boot_sign | bool
+
+- name: Ensure secure boot signing key permissions are restrictive
+  ansible.builtin.assert:
+    that:
+      - secure_boot_key_stat.stat.exists
+      - (secure_boot_key_mode & secure_boot_key_owner_read_mask) != 0
+      - (secure_boot_key_mode & secure_boot_key_group_mask) == 0
+      - (secure_boot_key_mode & secure_boot_key_other_mask) == 0
+      - secure_boot_key_stat.stat.uid == 0
+    fail_msg: >-
+      secure_boot_sign_key_path must exist and be readable only by root
+      (mode 0400 or 0600).
+  vars:
+    secure_boot_key_mode: "{{ secure_boot_key_stat.stat.mode | default('0000') | string | int(base=8) }}"
+    secure_boot_key_owner_read_mask: 0o400
+    secure_boot_key_group_mask: 0o070
+    secure_boot_key_other_mask: 0o007
+  when: secure_boot_sign | bool
+
+- name: Check secure boot signing certificate
+  ansible.builtin.stat:
+    path: "{{ secure_boot_sign_cert_path }}"
+  register: secure_boot_cert_stat
+  when: secure_boot_sign | bool
+
+- name: Ensure secure boot signing certificate exists
+  ansible.builtin.assert:
+    that:
+      - secure_boot_cert_stat.stat.exists
+    fail_msg: secure_boot_sign_cert_path must exist.
+  when: secure_boot_sign | bool
+
 - name: Derive partition device paths
   ansible.builtin.set_fact:
     boot_part_device: "{{ boot_disk }}{{ 'p' if (is_nvme | bool) else '' }}{{ boot_part_num }}"

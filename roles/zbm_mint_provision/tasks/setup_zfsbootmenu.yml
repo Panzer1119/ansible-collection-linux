@@ -28,14 +28,15 @@
 - name: Download ZFSBootMenu EFI binary
   ansible.builtin.get_url:
     url: https://get.zfsbootmenu.org/efi
-    dest: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ.EFI"
+    dest: "{{ zbm_efi_primary_path }}"
     mode: '0644'
 
 - name: Create backup ZFSBootMenu EFI binary
   ansible.builtin.copy:
-    src: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ.EFI"
-    dest: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI"
+    src: "{{ zbm_efi_primary_path }}"
+    dest: "{{ zbm_efi_backup_path }}"
     remote_src: true
+    mode: '0644'
 
 - name: Ensure efivarfs is mounted for chroot
   ansible.posix.mount:
@@ -118,4 +119,117 @@
           "Boot to menu"  "quiet loglevel=0 zbm.show"
         mode: '0644'
       become: true
+
+- name: Check for rEFInd EFI binary
+  ansible.builtin.stat:
+    path: "{{ secure_boot_refind_efi_path }}"
+  register: refind_efi
+  when: secure_boot_sign | bool and efi_boot_method == 'refind'
+
+- name: Build secure boot signing file list
+  ansible.builtin.set_fact:
+    secure_boot_sign_files: >-
+      {{
+        [
+          zbm_efi_primary_path,
+          zbm_efi_backup_path
+        ]
+        + (
+          [secure_boot_refind_efi_path]
+          if (
+            efi_boot_method == 'refind'
+            and refind_efi is defined
+            and refind_efi.stat.exists
+          )
+          else []
+        )
+        + (secure_boot_sign_extra_efi_files | default([]))
+      }}
+  when: secure_boot_sign | bool
+
+- name: Initialize secure boot signing list
+  ansible.builtin.set_fact:
+    secure_boot_sign_pending: []
+  when: secure_boot_sign | bool
+
+- name: Check EFI binaries for existing signatures
+  ansible.builtin.command:
+    argv:
+      - sbverify
+      - --cert
+      - "{{ secure_boot_sign_cert_path }}"
+      - "{{ item }}"
+  register: secure_boot_sign_verify
+  failed_when: false
+  changed_when: false
+  loop: "{{ secure_boot_sign_files }}"
+  when: secure_boot_sign | bool
+
+- name: Log EFI binaries requiring signing
+  ansible.builtin.debug:
+    msg: >-
+      EFI binary {{ item.item }} requires signing (sbverify rc={{ item.rc }}):
+      {{ item.stderr | default('no stderr output') }}
+    verbosity: 1
+  loop: "{{ secure_boot_sign_verify.results | default([]) }}"
+  when:
+    - secure_boot_sign | bool
+    - item.rc != 0
+
+- name: Build list of EFI binaries needing signing
+  ansible.builtin.set_fact:
+    secure_boot_sign_pending: "{{ secure_boot_sign_pending + [item.item] }}"
+  loop: "{{ secure_boot_sign_verify.results | default([]) }}"
+  when:
+    - secure_boot_sign | bool
+    - item.rc != 0
+
+- name: Secure boot signing and verification
+  when:
+    - secure_boot_sign | bool
+    - secure_boot_sign_pending | default([]) | length > 0
+  block:
+    - name: Sign EFI binaries for secure boot
+      ansible.builtin.command:
+        argv:
+          - sbsign
+          - --key
+          - "{{ secure_boot_sign_key_path }}"
+          - --cert
+          - "{{ secure_boot_sign_cert_path }}"
+          - --output
+          - "{{ item }}{{ secure_boot_sign_temp_suffix }}"
+          - "{{ item }}"
+      register: secure_boot_sign_result
+      changed_when: secure_boot_sign_result.rc == 0
+      failed_when: secure_boot_sign_result.rc != 0
+      no_log: "{{ secure_boot_sign_no_log }}"
+      loop: "{{ secure_boot_sign_pending | default([]) }}"
+
+    - name: Replace EFI binaries with signed versions
+      ansible.builtin.copy:
+        src: "{{ item }}{{ secure_boot_sign_temp_suffix }}"
+        dest: "{{ item }}"
+        mode: '0644'
+        remote_src: true
+      loop: "{{ secure_boot_sign_pending | default([]) }}"
+
+    - name: Verify signed EFI binaries
+      ansible.builtin.command:
+        argv:
+          - sbverify
+          - --cert
+          - "{{ secure_boot_sign_cert_path }}"
+          - "{{ item }}"
+      register: secure_boot_sign_verify_signed
+      changed_when: false
+      failed_when: secure_boot_sign_verify_signed.rc != 0
+      loop: "{{ secure_boot_sign_pending | default([]) }}"
+
+  always:
+    - name: Remove secure boot signing temporary files
+      ansible.builtin.file:
+        path: "{{ item }}{{ secure_boot_sign_temp_suffix }}"
+        state: absent
+      loop: "{{ secure_boot_sign_pending | default([]) }}"
 ...
