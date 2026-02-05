@@ -135,7 +135,11 @@
         ]
         + (
           [secure_boot_refind_efi_path]
-          if (efi_boot_method == 'refind' and refind_efi.stat.exists)
+          if (
+            efi_boot_method == 'refind'
+            and refind_efi is defined
+            and refind_efi.stat.exists
+          )
           else []
         )
         + (secure_boot_sign_extra_efi_files | default([]))
