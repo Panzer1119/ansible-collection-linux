@@ -93,6 +93,24 @@ All variables live in `defaults/main.yml`.
     - Run `refind-install` to set up rEFInd
     - Create a custom `refind_linux.conf` in `/boot/efi/EFI/ZBM/` with ZBM-specific boot options
 
+### Secure Boot signing (optional)
+
+- `secure_boot_sign` (default: `false`)
+  - When enabled, signs ZFSBootMenu EFI binaries (and rEFInd when used) with `sbsign`.
+- `secure_boot_sign_key_path` / `secure_boot_sign_cert_path` (default: empty)
+  - Paths to the Secure Boot key and certificate on the live system.
+- `secure_boot_refind_efi_path` (default: `chroot_path` + `/boot/efi/EFI/refind/refind_x64.efi`)
+  - Override the rEFInd EFI binary location when using `efi_boot_method: refind`
+    (derived from `chroot_path`).
+- `secure_boot_sign_no_log` (default: `true`)
+  - Suppress signing command output (set to `false` for troubleshooting).
+- `secure_boot_sign_temp_suffix` (default: `.signed`)
+  - Temporary suffix used when creating signed EFI binaries.
+- `secure_boot_sign_extra_efi_files` (default: `[]`)
+  - Additional EFI binaries to sign (full paths).
+- `zbm_efi_primary_path` / `zbm_efi_backup_path`
+  - Paths to the ZFSBootMenu EFI binaries on the mounted ESP.
+
 ### Post-provision packages
 
 - `chroot_extra_packages` (default: `[]`)

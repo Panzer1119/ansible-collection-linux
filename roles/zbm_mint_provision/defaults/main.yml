@@ -119,6 +119,20 @@ skip_configuration: false
 # Optional extra packages to install at the end of provisioning
 chroot_extra_packages: []
 
+# ZFSBootMenu EFI paths
+zbm_efi_primary_path: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ.EFI"
+zbm_efi_backup_path: "{{ chroot_path }}/boot/efi/EFI/ZBM/VMLINUZ-BACKUP.EFI"
+
+# Secure Boot signing (optional)
+# When enabled, the role signs ZFSBootMenu (and rEFInd when used) using sbsign.
+secure_boot_sign: false
+secure_boot_sign_key_path: ""
+secure_boot_sign_cert_path: ""
+secure_boot_refind_efi_path: "{{ chroot_path }}/boot/efi/EFI/refind/refind_x64.efi"
+secure_boot_sign_no_log: true
+secure_boot_sign_temp_suffix: ".signed"
+secure_boot_sign_extra_efi_files: []
+
 # EFI Boot Configuration
 # Options: "direct" (uses efibootmgr directly) or
 # "refind" (uses rEFInd boot manager)
